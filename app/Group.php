@@ -20,4 +20,8 @@ class Group extends Model{
       $this->targets()->saveMany($targets);
     });
   }
+
+  public function removeUsers($removing_target_ids){
+    $this->targets()->whereIn('target_id', $removing_target_ids)->delete();
+  }
 }
