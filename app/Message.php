@@ -21,10 +21,15 @@ class Message extends Model{
 
   public function afterCreate(){
     DB::transaction(function(){
-      collect($this->afterCreatedQueue)->each(function($task){
-        $task->message_id = $this->id;
-        $task->save();
-      });
+      if($this->target_type == self::USER_TARGET_TYPE){
+        collect($this->afterCreatedQueue)->each(function($task){
+          $task->message_id = $this->id;
+          $task->save();
+        });
+      }else if($this->target_type == self::GROUP_TARGET_TYPE){
+        $groups = Group::whereIn('id', $this->afterCreatedQueue)->get();
+        $this->targets()->attach($groups);
+      }
     });
   }
 
@@ -38,7 +43,7 @@ class Message extends Model{
       return $this->hasMany('App\MessageTarget');
     }else{
       //群组
-      return $this->hasMany('App\Group');
+      return $this->belongsToMany('App\Group');
     }
   }
 
@@ -61,6 +66,10 @@ class Message extends Model{
         $message->prepareGlobaleMessage();
         break;
 
+      case self::GROUP_TARGET_TYPE:
+        $message->prepareGroupMessage($targets);
+        break;
+
       default:
         # code...
         break;
@@ -69,10 +78,12 @@ class Message extends Model{
     return $message;
   }
 
+  //设置全局消息
   public function prepareGlobaleMessage(){
     $this->target_type = self::GLOBALE_TARGET_TYPE;
   }
 
+  //设置用户消息
   public function prepareUserMessage($targets){
     $this->target_type = self::USER_TARGET_TYPE;
 
@@ -82,6 +93,12 @@ class Message extends Model{
     });
 
     $this->setAfterCreatedQueue($queue);
+  }
+
+  //设置群组消息
+  public function prepareGroupMessage($targets){
+    $this->target_type = self::GROUP_TARGET_TYPE;
+    $this->setAfterCreatedQueue($targets);
   }
 
   public static function getTargetTypeFromOptions(){

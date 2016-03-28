@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateMessgeTargetsTable extends Migration
+class CreateGroupMessageTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,14 +12,13 @@ class CreateMessgeTargetsTable extends Migration
      */
     public function up()
     {
-      Schema::create('message_groups', function(Blueprint $table) {
+      Schema::create('group_message', function(Blueprint $table) {
         $table->integer('message_id')->unsigned()->index();
         $table->integer('group_id')->unsigned()->index();
 
         $table->foreign('message_id')->references('id')->on('messages');
-        $table->foreign('group_id')->references('id')->on('messages');
+        $table->foreign('group_id')->references('id')->on('groups');
         $table->primary(['message_id', 'group_id']);
-
       });
     }
 
@@ -30,6 +29,6 @@ class CreateMessgeTargetsTable extends Migration
      */
     public function down()
     {
-      Schema::drop('message_groups');
+      Schema::drop('group_message');
     }
 }

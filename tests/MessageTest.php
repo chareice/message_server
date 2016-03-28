@@ -47,22 +47,45 @@ class MessageTest extends TestCase
   }
 
   //发送群组消息
-  // public function testCreateGroupMessage(){
-  //   $groups = [];
-  //
-  //   //生成10个Group
-  //   for ($i=0; $i < 10; $i++) {
-  //     $group = new Group;
-  //     $group->name = $this->faker->name;
-  //     $group->save();
-  //     array_push($groups, $group);
-  //   }
-  //
-  //   collect($groups)->each(function($group){
-  //     //为每个组添加用户
-  //     $group->addUser();
-  //   });
-  // }
+  public function testCreateGroupMessage(){
+    $message_content = 'this is a message';
+    $groups = [];
+
+    //生成10个Group
+    for ($i=0; $i < 10; $i++) {
+      $group = new Group;
+      $group->name = $this->faker->name;
+      $group->save();
+      array_push($groups, $group);
+    }
+
+    $users = [];
+    //生成100个用户
+    for ($i=0; $i < 100; $i++) {
+      array_push($users, $i);
+    }
+
+    collect($groups)->each(function($group) use ($users){
+      //为每个组添加用户
+      $group->addUsers(array_rand($users, 10));
+    });
+
+    //按组群发
+    $options = [
+      'content' => $message_content,
+      'targets' => [1, 2],
+      'target_type' => 'group'
+    ];
+
+    $message = Message::buildWithOptions($options);
+    $message->save();
+
+    $this->assertEquals(1, Message::count());
+
+    $message = Message::first();
+    $this->assertEquals($options['target_type'], $message->target_type);
+    $this->assertEquals(count($options['targets']), $message->targets()->count());
+  }
 
   //发送全局消息
   public function testCreateMessageForGlobaleUser(){
