@@ -17,21 +17,19 @@ class CreateMessagesTable extends Migration
           $table->increments('id');
 
           //消息内容
-          $table->text('content')->index();
+          $table->text('content');
 
           //发送者ID
           $table->integer('sender_id')->index();
 
-          //目标类型 可能是多发／组发
-          $table->string('target_type')->index();
+          //目标类型 可能是用户／群组／全体
+          $table->enum('target_type', ['user', 'group', 'globale']);
 
+          //消息类型 可能是单发／多发／组发／全局发
+          $table->enum('message_type', ['unicast', 'mutipcast', 'groupcast', 'globalecast'])->index();;
           //created_at and updated_at
           $table->timestamps();
         });
-
-        //target如果是多发的情况将接受者ID存到数组中
-        DB::statement('ALTER TABLE messages ADD COLUMN targets integer[]');
-        DB::statement('CREATE INDEX messages_targets_index on "messages" USING GIN ("targets");');
     }
 
     /**
