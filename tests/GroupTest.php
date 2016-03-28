@@ -34,7 +34,7 @@ class GroupTest extends TestCase{
     $group = new Group;
     $group->name = $this->faker->name;
     $group->save();
-    
+
     $group2 = new Group;
     $group2->name = $this->faker->name;
     $group2->save();
@@ -54,6 +54,14 @@ class GroupTest extends TestCase{
 
   //群组清空用户测试
   public function testEmptyUsersFromGroups(){
+    $group = new Group;
+    $group->name = $this->faker->name;
+    $group->save();
 
+    $group->addUsers([1, 2, 3]);
+    $this->assertEquals(3, $group->targets()->count());
+
+    $group->clearUsers();
+    $this->assertEquals(0, $group->targets()->count());
   }
 }

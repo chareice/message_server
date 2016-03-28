@@ -24,4 +24,8 @@ class Group extends Model{
   public function removeUsers($removing_target_ids){
     $this->targets()->whereIn('target_id', $removing_target_ids)->delete();
   }
+
+  public function clearUsers(){
+    $this->targets()->delete();
+  }
 }
