@@ -19,3 +19,11 @@ $app->group(['prefix' => 'groups'], function () use ($app) {
   $app->get('/{group_id}', ['uses' => 'App\Http\Controllers\GroupsController@show']);
   $app->delete('/{group_id}', ['uses' => 'App\Http\Controllers\GroupsController@destroy']);
 });
+
+$app->group(['prefix' => 'messages'], function () use ($app) {
+  $app->post('/', ['uses' => 'App\Http\Controllers\MessagesController@create']);
+});
+
+$app->group(['prefix' => 'users'], function() use ($app){
+  $app->get('{user_id}/messages', ['users' => 'App\Http\ControllersMessagesController@getMessage']);
+});

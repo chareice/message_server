@@ -53,9 +53,11 @@ class Message extends Model{
 
     $content = array_get($options, 'content', null);
     $targets = array_get($options, 'targets', null);
+    $sender_id = array_get($options, 'sender_id', null);
     $target_type = array_get($options, 'target_type', null);
 
     $message->content = $content;
+    $message->sender_id = $sender_id;
 
     switch ($target_type) {
       case self::USER_TARGET_TYPE:
@@ -95,13 +97,57 @@ class Message extends Model{
     $this->setAfterCreatedQueue($queue);
   }
 
+  //用户阅读消息
+  public function readBy($user_id){
+    $status = new TargetStatus;
+    $status->message_id = $this->id;
+    $status->target_id = $user_id;
+    $status->status = 'read';
+    $status->save();
+  }
+
   //设置群组消息
   public function prepareGroupMessage($targets){
     $this->target_type = self::GROUP_TARGET_TYPE;
     $this->setAfterCreatedQueue($targets);
   }
 
-  public static function getTargetTypeFromOptions(){
+  public static function getUnRead($user_id){
+    // not using this otherwise will throw Segmentation fault
+    // $commonSelect = Message::select('messages.id', 'messages.content', 'messages.created_at');
+    $messageQuery = self::globalMessagesQuery($user_id)->union(self::userMessagesQuery($user_id))->union(self::groupMessagesQuery($user_id));
 
+    $res = $messageQuery->get();
+    return $res;
+  }
+
+  public static function globalMessagesQuery($user_id){
+    return Message::select('messages.id', 'messages.content', 'messages.created_at', 'messages.sender_id')
+                            ->leftJoin('target_status', function($join) use ($user_id){
+                              $join->on('messages.id', '=', 'target_status.message_id')
+                                   ->where('target_status.target_id', '=', $user_id);
+                            })->where('messages.target_type', '=', self::GLOBALE_TARGET_TYPE)
+                              ->whereNull('target_status.message_id');
+  }
+
+  public static function userMessagesQuery($user_id){
+    return Message::select('messages.id', 'messages.content', 'messages.created_at', 'messages.sender_id')
+                            ->join('message_targets', 'message_targets.message_id', '=', 'messages.id')
+                            ->leftJoin('target_status', 'target_status.message_id', '=', 'messages.id')
+                            ->where('message_targets.target_id', '=', $user_id)
+                            ->whereNull('target_status.message_id');
+  }
+
+  public static function groupMessagesQuery($user_id){
+    $query = Message::select('messages.id', 'messages.content', 'messages.created_at', 'messages.sender_id')
+                            ->join('group_message', 'group_message.message_id', '=', 'messages.id')
+                            ->join('groups', 'group_message.group_id', '=', 'groups.id')
+                            ->join('group_targets', 'groups.id', '=', 'group_targets.group_id')
+                            ->leftJoin('target_status', function($join){
+                              $join->on('messages.id', '=', 'target_status.message_id')
+                                   ->on('target_status.target_id', '=', 'group_targets.target_id');
+                            })->where('group_targets.target_id', '=', $user_id)
+                              ->whereNull('target_status.message_id');
+    return $query;
   }
 }

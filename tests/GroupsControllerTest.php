@@ -3,7 +3,7 @@
 use Laravel\Lumen\Testing\DatabaseTransactions;
 use App\Group;
 
-class GroupApiTest extends TestCase{
+class GroupsControllerTest extends TestCase{
   public function testGetGroups(){
     $response = $this->call('GET', '/groups');
     $this->assertResponseOk();
