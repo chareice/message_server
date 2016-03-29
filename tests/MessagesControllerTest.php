@@ -32,7 +32,7 @@ class MessagesControllerTest extends TestCase{
     $this->seeInDatabase('messages', $options);
 
     //获取消息
-    $this->get('/users/1/unread_messages');
-    // $this->assertResponseOk();
+    $response = $this->call('GET', '/users/1/unread_messages');
+    $this->assertResponseOk();
   }
 }

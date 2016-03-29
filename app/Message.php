@@ -115,12 +115,15 @@ class Message extends Model{
   public static function getUnRead($user_id){
     // not using this otherwise will throw Segmentation fault
     // $commonSelect = Message::select('messages.id', 'messages.content', 'messages.created_at');
-    $messageQuery = self::globalMessagesQuery($user_id)->union(self::userMessagesQuery($user_id))->union(self::groupMessagesQuery($user_id));
+    $messageQuery = self::globalMessagesQuery($user_id)
+                          ->union(self::userMessagesQuery($user_id))
+                          ->union(self::groupMessagesQuery($user_id));
 
     $res = $messageQuery->get();
     return $res;
   }
 
+  //全局消息
   public static function globalMessagesQuery($user_id){
     return Message::select('messages.id', 'messages.content', 'messages.created_at', 'messages.sender_id')
                             ->leftJoin('target_status', function($join) use ($user_id){
@@ -130,6 +133,8 @@ class Message extends Model{
                               ->whereNull('target_status.message_id');
   }
 
+
+  //用户消息
   public static function userMessagesQuery($user_id){
     return Message::select('messages.id', 'messages.content', 'messages.created_at', 'messages.sender_id')
                             ->join('message_targets', 'message_targets.message_id', '=', 'messages.id')
@@ -138,6 +143,7 @@ class Message extends Model{
                             ->whereNull('target_status.message_id');
   }
 
+  //群组消息
   public static function groupMessagesQuery($user_id){
     $query = Message::select('messages.id', 'messages.content', 'messages.created_at', 'messages.sender_id')
                             ->join('group_message', 'group_message.message_id', '=', 'messages.id')

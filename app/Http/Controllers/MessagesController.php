@@ -27,6 +27,8 @@ class MessagesController extends Controller{
   }
 
   //用户获取消息
-  public function getMessage($user_id, Request $request){
+  public function getUnReadMessage($user_id, Request $request){
+    $unreadMessages = Message::getUnRead($user_id);
+    return $this->responseJson($unreadMessages);
   }
 }

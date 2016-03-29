@@ -25,5 +25,5 @@ $app->group(['prefix' => 'messages'], function () use ($app) {
 });
 
 $app->group(['prefix' => 'users'], function() use ($app){
-  $app->get('{user_id}/messages', ['users' => 'App\Http\ControllersMessagesController@getMessage']);
+  $app->get('{user_id}/unread_messages', ['uses' => 'App\Http\Controllers\MessagesController@getUnReadMessage']);
 });
