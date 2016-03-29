@@ -13,4 +13,8 @@
 
 $app->group(['prefix' => 'groups'], function () use ($app) {
   $app->get('/', ['uses' => 'App\Http\Controllers\GroupsController@index']);
+  $app->post('/', ['uses' => 'App\Http\Controllers\GroupsController@create']);
+  $app->post('/add_users', ['uses' => 'App\Http\Controllers\GroupsController@addUsers']);
+  $app->delete('/delete_users', ['uses' => 'App\Http\Controllers\GroupsController@deleteUsers']);
+  $app->get('/{group_id}', ['uses' => 'App\Http\Controllers\GroupsController@show']);
 });

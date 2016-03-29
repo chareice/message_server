@@ -6,7 +6,7 @@ use App\Group;
 class GroupApiTest extends TestCase{
   public function testGetGroups(){
     $response = $this->call('GET', '/groups');
-    $this->assertEquals(200, $response->status());
+    $this->assertResponseOk();
     $this->assertEquals(0, count($response->getData()->data));
 
     #create groups
@@ -33,5 +33,91 @@ class GroupApiTest extends TestCase{
 
     $response = $this->call('GET', '/groups');
     $this->assertEquals(10, count($response->getData()->data));
+  }
+
+  //测试创建用户组
+  public function testCreateGroup(){
+    $options = [
+      'name' => $this->faker->name
+    ];
+
+    $response = $this->call('POST', '/groups', $options);
+    $this->assertResponseOk();
+  }
+
+  //测试向组中添加用户
+  public function testAddGroupUser(){
+    $options = [
+      'name' => $this->faker->name
+    ];
+
+    $response = $this->call('POST', '/groups', $options);
+
+    $group = Group::first();
+    $this->assertEquals(0, $group->targets()->count());
+
+    $options = [
+      'users' => [1, 2, 3],
+      'group_id' => $group->id
+    ];
+    $response = $this->call('POST', '/groups/add_users', $options);
+    $this->assertResponseOk();
+    //reload group
+    $group = Group::first();
+    $this->assertEquals(count($options['users']), $group->targets()->count());
+  }
+
+  //测试获取Group信息
+  public function testGetGroupInfo(){
+    $options = [
+      'name' => $this->faker->name
+    ];
+
+    $response = $this->call('POST', '/groups', $options);
+
+    $group = Group::first();
+    $this->assertEquals(0, $group->targets()->count());
+
+    $options = [
+      'users' => [1, 2, 3],
+      'group_id' => $group->id
+    ];
+    $response = $this->call('POST', '/groups/add_users', $options);
+    $this->assertResponseOk();
+
+    $response = $this->call('get', '/groups/'.$group->id);
+    $this->assertResponseOk();
+    $this->assertEquals(3, count($response->getData()->data->targets));
+  }
+
+  //测试从Group删除用户
+  public function testDeleteUsersFromGroup(){
+    $options = [
+      'name' => $this->faker->name
+    ];
+
+    $response = $this->call('POST', '/groups', $options);
+
+    $group = Group::first();
+    $this->assertEquals(0, $group->targets()->count());
+
+    $options = [
+      'users' => [1, 2, 3],
+      'group_id' => $group->id
+    ];
+    $response = $this->call('POST', '/groups/add_users', $options);
+    $this->assertResponseOk();
+
+    $options = [
+      'users' => [1, 3],
+      'group_id' => $group->id
+    ];
+
+    $response = $this->call('DELETE', '/groups/delete_users', $options);
+    $this->assertResponseOk();
+
+    $response = $this->call('get', '/groups/'.$options['group_id']);
+    $this->assertResponseOk();
+    $this->assertEquals(1, count($response->getData()->data->targets));
   }
 }
