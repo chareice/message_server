@@ -50,4 +50,11 @@ class GroupsController extends Controller
     });
     return $this->responseJson($data);
   }
+
+  //删除用户组
+  public function destroy($group_id){
+    $group = Group::find($group_id);
+    $group->delete();
+    return $this->responseJson();
+  }
 }

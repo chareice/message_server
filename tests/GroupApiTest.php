@@ -120,4 +120,33 @@ class GroupApiTest extends TestCase{
     $this->assertResponseOk();
     $this->assertEquals(1, count($response->getData()->data->targets));
   }
+
+  //删除组测试
+  public function testDeleteGroup(){
+    $options = [
+      'name' => $this->faker->name
+    ];
+
+    $response = $this->call('POST', '/groups', $options);
+
+    $group = Group::first();
+
+    $response = $this->call('DELETE', '/groups/'.$group->id);
+    $this->assertResponseOk();
+    $this->assertEquals(0, Group::count());
+
+    //删除有targets的用户组
+    $options = [
+      'name' => $this->faker->name
+    ];
+
+    $response = $this->call('POST', '/groups', $options);
+
+    $group = Group::first();
+    $group->addUsers([1,2,3,4]);
+
+    $response = $this->call('DELETE', '/groups/'.$group->id);
+    $this->assertResponseOk();
+    $this->assertEquals(0, Group::count());
+  }
 }

@@ -17,4 +17,5 @@ $app->group(['prefix' => 'groups'], function () use ($app) {
   $app->post('/add_users', ['uses' => 'App\Http\Controllers\GroupsController@addUsers']);
   $app->delete('/delete_users', ['uses' => 'App\Http\Controllers\GroupsController@deleteUsers']);
   $app->get('/{group_id}', ['uses' => 'App\Http\Controllers\GroupsController@show']);
+  $app->delete('/{group_id}', ['uses' => 'App\Http\Controllers\GroupsController@destroy']);
 });
