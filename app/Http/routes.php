@@ -11,6 +11,6 @@
 |
 */
 
-$app->get('/', function () use ($app) {
-    return $app->version();
+$app->group(['prefix' => 'groups'], function () use ($app) {
+  $app->get('/', ['uses' => 'App\Http\Controllers\GroupsController@index']);
 });

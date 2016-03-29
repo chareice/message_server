@@ -1,14 +1,13 @@
 <?php
-use Laravel\Lumen\Testing\DatabaseTransactions;
+use Laravel\Lumen\Testing\DatabaseMigrations;
 
 class TestCase extends Laravel\Lumen\Testing\TestCase
 {
+  use DatabaseMigrations;
   public static $databaseInitialized = false;
 
   public function setUp(){
     parent::setUp();
-    $this->artisan('migrate:reset');
-    $this->artisan('migrate');
     $this->setFaker();
     $this->createApplication();
   }
