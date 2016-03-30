@@ -295,4 +295,46 @@ class MessageTest extends TestCase
     $userMessage->readBy(1);
     $this->assertEquals(0, Message::getUnReadCount(1));
   }
+
+  //测试获取已读消息
+  public function testGetGlobaleReadMessage(){
+    $message_content = 'some message content';
+
+    //群发用户
+    $options = [
+      'content' => $message_content,
+      'targets' => [1, 2, 3],
+      'target_type' => 'user',
+      'sender_id' => 1
+    ];
+    $userMessage = Message::buildWithOptions($options);
+    $userMessage->save();
+
+    $this->assertEquals(1, Message::getUnReadCount(1));
+    $this->assertEquals(0, count(Message::getRead(1)));
+    $userMessage->readBy(1);
+    $this->assertEquals(0, Message::getUnReadCount(1));
+    $this->assertEquals(1, count(Message::getRead(1)));
+  }
+  //测试获取群发已读消息
+  public function testGetUserReadMessage(){
+    $message_content = 'some message content';
+
+    //群发用户
+    $options = [
+      'content' => $message_content,
+      'targets' => [1, 2, 3],
+      'target_type' => 'user',
+      'sender_id' => 1
+    ];
+
+    $userMessage = Message::buildWithOptions($options);
+    $userMessage->save();
+
+    $this->assertEquals(1, count(Message::getUnRead(1)));
+    $this->assertEquals(0, count(Message::getRead(1)));
+    $userMessage->readBy(1);
+    $this->assertEquals(0, count(Message::getUnRead(1)));
+    $this->assertEquals(1, count(Message::getRead(1)));
+  }
 }
