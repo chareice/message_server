@@ -1,21 +1,22 @@
+#考呀呀消息服务API接口
 
-# 考呀呀消息服务API接口
+[toc]
 
-##运行方法
+##一、运行方法
 1. 执行`composer install`
 2. 复制`.env.example`到`.env`并修改其中的数据库配置。
 3. 运行`php artisan migrate`执行数据库迁移。
 4. 运行`php -S 0.0.0.0:8080 -t public` 开启服务（测试用）。
 
-## 单元测试
+##二、单元测试
 
 ```
 phpunit
 ```
 
-##接口文档
+##三、接口文档
 
-### 用户组
+### 3.1 用户组
 
 #### 1) 获取用户组列表:
 
@@ -126,7 +127,7 @@ curl -H "Content-Type: application/json" -X DELETE --data '{"group_id": 1, "user
 curl -X DELETE $host/groups/2
 ```
 
-### 消息
+### 3.2 消息
 
 #### 1) 发送消息
 
@@ -162,7 +163,7 @@ curl -H "Content-Type: application/json" --data '{"content":"this is a message",
 {"data":[]}
 ```
 
-2) 获取未读消息数量
+#### 2) 获取未读消息数量
 
 请求：`GET /users/{user_id}/unread_messages_count`
 
@@ -182,7 +183,7 @@ curl $host/users/1/unread_messages_count
 {"data":1}
 ```
 
-3) 获取未读消息
+#### 3) 获取未读消息
 
 请求：`GET /users/{user_id}/unread_messages`
 
@@ -211,7 +212,7 @@ curl $host/users/1/unread_messages
 }
 ```
 
-4) 阅读消息
+#### 4) 阅读消息
 
 请求：`POST /messages/read`
 
@@ -225,8 +226,7 @@ curl $host/users/1/unread_messages
 ```
 curl -H "Content-Type: application/json" --data '{"user_id": 1,"message_id":1}' $host/messages/read
 ```
-
-5) 获取已读消息
+#### 5) 获取已读消息
 
 请求：`GET /users/{user_id}/read_messages`
 
