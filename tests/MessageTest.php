@@ -275,4 +275,24 @@ class MessageTest extends TestCase
     $groupMessage->readBy(1);
     $this->assertEquals(0, count(Message::getUnRead(1)));
   }
+
+  //测试获取未读消息数量
+  public function testGetUnReadMessageCount(){
+    $message_content = 'some message content';
+
+    //群发用户
+    $options = [
+      'content' => $message_content,
+      'targets' => [1, 2, 3],
+      'target_type' => 'user',
+      'sender_id' => 1
+    ];
+
+    $userMessage = Message::buildWithOptions($options);
+    $userMessage->save();
+
+    $this->assertEquals(1, Message::getUnReadCount(1));
+    $userMessage->readBy(1);
+    $this->assertEquals(0, Message::getUnReadCount(1));
+  }
 }

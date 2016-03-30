@@ -54,4 +54,24 @@ class MessagesControllerTest extends TestCase{
     $this->seeInDatabase('messages', $options);
     $this->assertEquals(0, count(Message::getUnRead(1)));
   }
+
+  //获取用户未读消息数量
+  public function testGetUnReadMessageCount(){
+    //创建一条全局消息
+    $options = [
+      'content' =>'Some Content',
+      'target_type' => 'globale',
+      'sender_id' => 1
+    ];
+
+    $this->post('/messages', $options);
+    $this->assertResponseOk();
+    $this->seeInDatabase('messages', $options);
+
+    //获取消息
+    $response = $this->call('GET', '/users/1/unread_messages_count');
+    $this->assertResponseOk();
+    $data = $response->getData();
+    $this->assertEquals(1, $data->data);
+  }
 }

@@ -32,6 +32,11 @@ class MessagesController extends Controller{
     return $this->responseJson($unreadMessages);
   }
 
+  public function getUnReadMessageCount($user_id, Request $request){
+    $unreadMessageCount = Message::getUnReadCount($user_id);
+    return $this->responseJson($unreadMessageCount);
+  }
+
   public function read(Request $request){
     $user_id = $request->input('user_id');
     $message_id = $request->input('message_id');

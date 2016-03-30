@@ -113,14 +113,23 @@ class Message extends Model{
   }
 
   public static function getUnRead($user_id){
-    // not using this otherwise will throw Segmentation fault
-    // $commonSelect = Message::select('messages.id', 'messages.content', 'messages.created_at');
-    $messageQuery = self::globalMessagesQuery($user_id)
+    $res = self::getUnReadQueryBuilder($user_id)->get();
+    return $res;
+  }
+
+  public static function getUnReadCount($user_id){
+    $sub = self::getUnReadQueryBuilder($user_id);
+    $res = DB::table(DB::raw("({$sub->toSql()}) as sub"))
+            ->mergeBindings($sub->getQuery())
+            ->count();
+    return $res;
+  }
+
+  public static function getUnReadQueryBuilder($user_id){
+    $queryBuilder = self::globalMessagesQuery($user_id)
                           ->union(self::userMessagesQuery($user_id))
                           ->union(self::groupMessagesQuery($user_id));
-
-    $res = $messageQuery->get();
-    return $res;
+    return $queryBuilder;
   }
 
   //全局消息
