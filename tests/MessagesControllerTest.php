@@ -74,4 +74,27 @@ class MessagesControllerTest extends TestCase{
     $data = $response->getData();
     $this->assertEquals(1, $data->data);
   }
+
+  //获取用户已读消息
+  public function testGetReadMessages(){
+    //创建一条全局消息
+    $options = [
+      'content' =>'Some Content',
+      'target_type' => 'globale',
+      'sender_id' => 1
+    ];
+
+    $this->post('/messages', $options);
+    $this->assertResponseOk();
+    $this->seeInDatabase('messages', $options);
+
+    $message = Message::first();
+    $response = $this->call('GET', '/users/1/read_message');
+    $data = $response->getData();
+    $this->assertEquals(0, count($data->data));
+    $message->readBy(1);
+    $response = $this->call('GET', '/users/1/read_message');
+    $data = $response->getData();
+    $this->assertEquals(1, count($data->data));
+  }
 }
