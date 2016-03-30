@@ -17,7 +17,6 @@ class CreateMessageTargetsTable extends Migration
           $table->integer('target_id')->unsigned()->index();
 
           $table->foreign('message_id')->references('id')->on('messages');
-          $table->timestamps();
           $table->primary(['message_id', 'target_id']);
         });
 

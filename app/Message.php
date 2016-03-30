@@ -22,10 +22,16 @@ class Message extends Model{
   public function afterCreate(){
     DB::transaction(function(){
       if($this->target_type == self::USER_TARGET_TYPE){
-        collect($this->afterCreatedQueue)->each(function($task){
-          $task->message_id = $this->id;
-          $task->save();
-        });
+        $insertQueue = [];
+        foreach ($this->afterCreatedQueue as $key => $value) {
+          $item = [];
+          $item['message_id'] = $this->id;
+          $item['target_id'] = $value;
+          array_push($insertQueue, $item);
+        }
+
+        DB::table('message_targets')->insert($insertQueue);
+
       }else if($this->target_type == self::GROUP_TARGET_TYPE){
         $groups = Group::whereIn('id', $this->afterCreatedQueue)->get();
         $this->targets()->attach($groups);
@@ -89,12 +95,7 @@ class Message extends Model{
   public function prepareUserMessage($targets){
     $this->target_type = self::USER_TARGET_TYPE;
 
-    $queue = collect($targets)->map(function($target){
-      $message_target = new MessageTarget(['target_id' => $target]);
-      return $message_target;
-    });
-
-    $this->setAfterCreatedQueue($queue);
+    $this->setAfterCreatedQueue($targets);
   }
 
   //用户阅读消息
