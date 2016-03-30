@@ -89,11 +89,11 @@ class MessagesControllerTest extends TestCase{
     $this->seeInDatabase('messages', $options);
 
     $message = Message::first();
-    $response = $this->call('GET', '/users/1/read_message');
+    $response = $this->call('GET', '/users/1/read_messages');
     $data = $response->getData();
     $this->assertEquals(0, count($data->data));
     $message->readBy(1);
-    $response = $this->call('GET', '/users/1/read_message');
+    $response = $this->call('GET', '/users/1/read_messages');
     $data = $response->getData();
     $this->assertEquals(1, count($data->data));
   }

@@ -28,8 +28,8 @@ $app->group(['prefix' => 'messages'], function () use ($app) {
 $app->group(['prefix' => 'users'], function() use ($app){
   //获取未读消息
   $app->get('{user_id}/unread_messages', ['uses' => 'App\Http\Controllers\MessagesController@getUnReadMessage']);
-  //获取未读消息数量s
+  //获取未读消息数量
   $app->get('{user_id}/unread_messages_count', ['uses' => 'App\Http\Controllers\MessagesController@getUnReadMessageCount']);
   //获取已读消息
-  $app->get('{user_id}/read_message', ['uses' => 'App\Http\Controllers\MessagesController@getReadMessage']);
+  $app->get('{user_id}/read_messages', ['uses' => 'App\Http\Controllers\MessagesController@getReadMessage']);
 });
