@@ -7,7 +7,13 @@ RUN mv composer.phar /usr/local/bin/composer
 
 RUN apt-get update && apt-get install -y libmcrypt-dev git zlib1g-dev
 RUN docker-php-ext-install mbstring mcrypt pdo_mysql zip
+
+WORKDIR /tmp/composer-install
+ADD ./composer.json composer.json
+ADD ./composer.lock composer.lock
+RUN composer install --no-dev
+
 RUN sed -i 's#DocumentRoot /var/www/html#DocumentRoot /var/www/webapp/public#' /etc/apache2/apache2.conf
 COPY . /var/www/webapp
-RUN cd /var/www/webapp && composer install
-CMD ['/var/www/webapp/start-up.sh']
+RUN cp -r /tmp/composer-install/vendor /var/www/webapp
+CMD bash /var/www/webapp/start-up.sh
