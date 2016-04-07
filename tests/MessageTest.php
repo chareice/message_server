@@ -3,6 +3,7 @@
 use Laravel\Lumen\Testing\DatabaseTransactions;
 use App\Message;
 use App\Group;
+use Carbon\Carbon;
 
 class MessageTest extends TestCase
 {
@@ -17,6 +18,29 @@ class MessageTest extends TestCase
     $this->assertEquals(0, Message::count());
     $message->save();
     $this->assertEquals(1, Message::count());
+  }
+
+  //新增消息 有失效时间
+  public function testCreateMessageWithEffectiveTime(){
+    $message_content = 'some message content';
+
+    $effective_time = Carbon::now()->addDay();
+    $expiration_time = Carbon::now()->addWeek();
+    $options = [
+      'content' => $message_content,
+      'targets' => [1, 2, 3, "some user_id"],
+      'target_type' => 'user',
+      'sender_id' => 1,
+      'title' => 'this is title',
+      'effective_time' => $effective_time,
+      'expiration_time' => $expiration_time
+    ];
+
+    $message = Message::buildWithOptions($options);
+    $message->save();
+    $message = Message::first();
+    $this->assertEquals($effective_time->toDateTimeString(), $message->effective_time);
+    $this->assertEquals($expiration_time->toDateTimeString(), $message->expiration_time);
   }
 
  /*

@@ -45,13 +45,17 @@ class MessagesController extends Controller{
     $target_type = $request->input('target_type');
     $targets = $request->input('targets');
     $sender_id = $request->input('sender_id');
+    $expiration_time = $request->input('expiration_time');
+    $effective_time = $request->input('effective_time');
 
     $options = [
       'content' => $content,
       'target_type' => $target_type,
       'targets' => $targets,
       'sender_id' => $sender_id,
-      'title' => $title
+      'title' => $title,
+      'expiration_time' => $expiration_time,
+      'effective_time' => $effective_time
     ];
 
     $message = Message::buildWithOptions($options);

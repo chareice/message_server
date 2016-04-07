@@ -19,6 +19,23 @@ class MessagesControllerTest extends TestCase{
     $this->seeInDatabase('messages', $options);
   }
 
+  //发送带有效期的函数
+  public function testCreateMessageForGlobaleUserWithExpirationTime(){
+    $options = [
+      'content' =>'Some Content',
+      'target_type' => 'globale',
+      'sender_id' => 1,
+      'title' => 'this is title',
+      'expiration_time'=> '2018-01-01'
+    ];
+
+    $this->post('/messages', $options);
+    $this->assertResponseOk();
+    $this->seeInDatabase('messages', $options);
+    $message = Message::first();
+    $this->assertEquals('2018-01-01 00:00:00', $message->expiration_time);
+  }
+
   //获取消息测试
   public function testUserGetMessages(){
     //创建一条全局消息

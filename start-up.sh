@@ -11,7 +11,8 @@ export DB_USERNAME=root
 export DB_PASSWORD=$MYSQL_ENV_MYSQL_ROOT_PASSWORD
 export CACHE_DRIVER=memcached
 export QUEUE_DRIVER=sync
-
+export APP_TIMEZONE=PRC
+export DB_TIMEZONE=+08:00
 echo 'change to workdir'
 cd /var/www/webapp;
 echo "start migrate"
