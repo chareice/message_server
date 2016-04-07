@@ -97,4 +97,41 @@ class MessagesControllerTest extends TestCase{
     $data = $response->getData();
     $this->assertEquals(1, count($data->data));
   }
+
+  //获取系统消息列表
+  public function testMessages(){
+    //创建一条全局消息
+    $options = [
+      'content' =>'Some Content',
+      'target_type' => 'globale',
+      'sender_id' => 1
+    ];
+
+    $this->post('/messages', $options);
+    $this->assertResponseOk();
+    $this->seeInDatabase('messages', $options);
+
+    $options = [
+      'content' =>'Some Content',
+      'target_type' => 'globale',
+      'sender_id' => 1
+    ];
+
+    $this->post('/messages', $options);
+    $this->assertResponseOk();
+    $this->seeInDatabase('messages', $options);
+
+    $firstMessage = Message::first();
+    $lastMessage = Message::orderBy('id', 'desc')->first();
+
+    $this->assertNotEquals($firstMessage->id, $lastMessage->id);
+    $response = $this->call('GET', '/messages?per_page=1');
+    $this->assertResponseOk();
+    $this->assertEquals(1, $response->getData()->meta->per_page);
+    $this->assertEquals($lastMessage->id, $response->getData()->data[0]->id);
+
+    $response = $this->call('GET', '/messages?per_page=1&page=2');
+    $this->assertResponseOk();
+    $this->assertEquals($firstMessage->id, $response->getData()->data[0]->id);
+  }
 }

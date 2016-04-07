@@ -3,10 +3,41 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
+
 use App\Group;
 use App\Message;
 
 class MessagesController extends Controller{
+
+  public function index(Request $request){
+    $per_page = 15;
+    if($request->input('per_page')){
+      $per_page = 1;
+    }
+
+    $current_page = 1;
+    if($request->input('page')){
+      $current_page = $request->input('page');
+    }
+
+    Paginator::currentPageResolver(function() use ($current_page) {
+      return $current_page;
+    });
+
+    $messages = Message::orderBy('id', 'desc')->paginate($per_page);
+
+    $messages_array = $messages->toArray();
+
+    $data = $messages_array['data'];
+    $meta = [
+      'current_page' => $messages_array['current_page'],
+      'total' => $messages_array['total'],
+      'per_page' => $messages_array['per_page']
+    ];
+    return $this->responseJson($data, $meta);
+  }
+
   //创建消息
   public function create(Request $request){
     $content = $request->input('content');

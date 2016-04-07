@@ -27,9 +27,7 @@ class CreateMessagesTable extends Migration
 
           //目标类型 可能是用户／群组／全体
           $table->enum('target_type', ['user', 'group', 'globale']);
-
-          //消息类型 可能是单发／多发／组发／全局发
-          $table->enum('message_type', ['unicast', 'mutipcast', 'groupcast', 'globalecast'])->index();;
+          
           //created_at and updated_at
           $table->timestamps();
         });

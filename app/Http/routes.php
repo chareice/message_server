@@ -21,6 +21,7 @@ $app->group(['prefix' => 'groups'], function () use ($app) {
 });
 
 $app->group(['prefix' => 'messages'], function () use ($app) {
+  $app->get('/', ['uses' => 'App\Http\Controllers\MessagesController@index']);
   $app->post('/', ['uses' => 'App\Http\Controllers\MessagesController@create']);
   $app->post('/read', ['uses' => 'App\Http\Controllers\MessagesController@read']);
 });
