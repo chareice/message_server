@@ -10,7 +10,8 @@ class MessagesControllerTest extends TestCase{
     $options = [
       'content' =>'Some Content',
       'target_type' => 'globale',
-      'sender_id' => 1
+      'sender_id' => 1,
+      'title' => 'this is title'
     ];
 
     $this->post('/messages', $options);
@@ -24,7 +25,8 @@ class MessagesControllerTest extends TestCase{
     $options = [
       'content' =>'Some Content',
       'target_type' => 'globale',
-      'sender_id' => 1
+      'sender_id' => 1,
+      'title' => 'this is title'
     ];
 
     $this->post('/messages', $options);
@@ -42,7 +44,8 @@ class MessagesControllerTest extends TestCase{
     $options = [
       'content' =>'Some Content',
       'target_type' => 'globale',
-      'sender_id' => 1
+      'sender_id' => 1,
+      'title' => 'this is title'
     ];
 
     $this->post('/messages', $options);
@@ -61,7 +64,8 @@ class MessagesControllerTest extends TestCase{
     $options = [
       'content' =>'Some Content',
       'target_type' => 'globale',
-      'sender_id' => 1
+      'sender_id' => 1,
+      'title' => 'this is title'
     ];
 
     $this->post('/messages', $options);
@@ -81,7 +85,8 @@ class MessagesControllerTest extends TestCase{
     $options = [
       'content' =>'Some Content',
       'target_type' => 'globale',
-      'sender_id' => 1
+      'sender_id' => 1,
+      'title' => 'this is title'
     ];
 
     $this->post('/messages', $options);
@@ -104,7 +109,8 @@ class MessagesControllerTest extends TestCase{
     $options = [
       'content' =>'Some Content',
       'target_type' => 'globale',
-      'sender_id' => 1
+      'sender_id' => 1,
+      'title' => 'this is title'
     ];
 
     $this->post('/messages', $options);
@@ -114,7 +120,8 @@ class MessagesControllerTest extends TestCase{
     $options = [
       'content' =>'Some Content',
       'target_type' => 'globale',
-      'sender_id' => 1
+      'sender_id' => 1,
+      'title' => 'this is title'
     ];
 
     $this->post('/messages', $options);

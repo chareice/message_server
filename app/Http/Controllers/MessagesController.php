@@ -41,6 +41,7 @@ class MessagesController extends Controller{
   //创建消息
   public function create(Request $request){
     $content = $request->input('content');
+    $title = $request->input('title');
     $target_type = $request->input('target_type');
     $targets = $request->input('targets');
     $sender_id = $request->input('sender_id');
@@ -49,7 +50,8 @@ class MessagesController extends Controller{
       'content' => $content,
       'target_type' => $target_type,
       'targets' => $targets,
-      'sender_id' => $sender_id
+      'sender_id' => $sender_id,
+      'title' => $title
     ];
 
     $message = Message::buildWithOptions($options);

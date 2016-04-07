@@ -10,6 +10,7 @@ class MessageTest extends TestCase
   public function testCreateMessage(){
     $message = new Message;
     $message->content = 'hello world!';
+    $message->title = 'this is my title';
     $message->sender_id = 1;
     $message->target_type = 'multcast';
 
@@ -33,7 +34,8 @@ class MessageTest extends TestCase
       'content' => $message_content,
       'targets' => [1, 2, 3, "some user_id"],
       'target_type' => 'user',
-      'sender_id' => 1
+      'sender_id' => 1,
+      'title' => 'this is title'
     ];
 
     $message = Message::buildWithOptions($options);
@@ -76,7 +78,8 @@ class MessageTest extends TestCase
       'content' => $message_content,
       'targets' => [1, 2],
       'target_type' => 'group',
-      'sender_id' => 1
+      'sender_id' => 1,
+      'title' => 'this is title'
     ];
 
     $message = Message::buildWithOptions($options);
@@ -96,7 +99,8 @@ class MessageTest extends TestCase
     $options = [
       'content' => $message_content,
       'target_type' => 'globale',
-      'sender_id' => 1
+      'sender_id' => 1,
+      'title' => 'this is title'
     ];
 
     $message = Message::buildWithOptions($options);
@@ -116,7 +120,8 @@ class MessageTest extends TestCase
     $options = [
       'content' => $message_content,
       'target_type' => 'globale',
-      'sender_id' => 1
+      'sender_id' => 1,
+      'title' => 'this is title'
     ];
 
     $message = Message::buildWithOptions($options);
@@ -134,7 +139,8 @@ class MessageTest extends TestCase
       'content' => $message_content,
       'targets' => [1, 2, 3],
       'target_type' => 'user',
-      'sender_id' => 1
+      'sender_id' => 1,
+      'title' => 'this is title'
     ];
 
     $message = Message::buildWithOptions($options);
@@ -167,7 +173,8 @@ class MessageTest extends TestCase
       'content' => $message_content,
       'targets' => [1, 2],
       'target_type' => 'group',
-      'sender_id' => 1
+      'sender_id' => 1,
+      'title' => 'this is title'
     ];
 
     $message = Message::buildWithOptions($options);
@@ -177,7 +184,8 @@ class MessageTest extends TestCase
       'content' => $message_content,
       'targets' => [2],
       'target_type' => 'group',
-      'sender_id' => 1
+      'sender_id' => 1,
+      'title' => 'this is title'
     ];
 
     $message = Message::buildWithOptions($options);
@@ -201,7 +209,8 @@ class MessageTest extends TestCase
       'content' => $message_content,
       'targets' => [1, 2, 3],
       'target_type' => 'user',
-      'sender_id' => 1
+      'sender_id' => 1,
+      'title' => 'this is title'
     ];
 
     $message = Message::buildWithOptions($options);
@@ -212,7 +221,8 @@ class MessageTest extends TestCase
     $options = [
       'content' => $message_content,
       'target_type' => 'globale',
-      'sender_id' => 1
+      'sender_id' => 1,
+      'title' => 'this is title'
     ];
 
     $message = Message::buildWithOptions($options);
@@ -233,7 +243,8 @@ class MessageTest extends TestCase
       'content' => $message_content,
       'targets' => [1, 2, 3],
       'target_type' => 'user',
-      'sender_id' => 1
+      'sender_id' => 1,
+      'title' => 'this is title'
     ];
 
     $userMessage = Message::buildWithOptions($options);
@@ -247,7 +258,8 @@ class MessageTest extends TestCase
     $options = [
       'content' => $message_content,
       'target_type' => 'globale',
-      'sender_id' => 1
+      'sender_id' => 1,
+      'title' => 'this is title'
     ];
 
     $messageGlobale = Message::buildWithOptions($options);
@@ -266,7 +278,8 @@ class MessageTest extends TestCase
       'content' => $message_content,
       'targets' => [1],
       'target_type' => 'group',
-      'sender_id' => 1
+      'sender_id' => 1,
+      'title' => 'this is title'
     ];
 
     $groupMessage = Message::buildWithOptions($options);
@@ -285,7 +298,8 @@ class MessageTest extends TestCase
       'content' => $message_content,
       'targets' => [1, 2, 3],
       'target_type' => 'user',
-      'sender_id' => 1
+      'sender_id' => 1,
+      'title' => 'this is title'
     ];
 
     $userMessage = Message::buildWithOptions($options);
@@ -305,7 +319,8 @@ class MessageTest extends TestCase
       'content' => $message_content,
       'targets' => [1, 2, 3],
       'target_type' => 'user',
-      'sender_id' => 1
+      'sender_id' => 1,
+      'title' => 'this is title'
     ];
     $userMessage = Message::buildWithOptions($options);
     $userMessage->save();
@@ -325,7 +340,8 @@ class MessageTest extends TestCase
       'content' => $message_content,
       'targets' => [1, 2, 3],
       'target_type' => 'user',
-      'sender_id' => 1
+      'sender_id' => 1,
+      'title' => 'this is title'
     ];
 
     $userMessage = Message::buildWithOptions($options);
