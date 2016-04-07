@@ -14,7 +14,7 @@ class CreateMessageTargetsTable extends Migration
     {
         Schema::create('message_targets', function(Blueprint $table) {
           $table->integer('message_id')->unsigned()->index();
-          $table->integer('target_id')->unsigned()->index();
+          $table->string('target_id')->index();
 
           $table->foreign('message_id')->references('id')->on('messages');
           $table->primary(['message_id', 'target_id']);

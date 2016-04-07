@@ -16,11 +16,14 @@ class CreateMessagesTable extends Migration
           //消息ID
           $table->increments('id');
 
+          //消息标题
+          $table->string('title');
+
           //消息内容
           $table->text('content');
 
           //发送者ID
-          $table->integer('sender_id')->index();
+          $table->string('sender_id')->index();
 
           //目标类型 可能是用户／群组／全体
           $table->enum('target_type', ['user', 'group', 'globale']);

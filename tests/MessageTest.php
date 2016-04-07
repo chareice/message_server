@@ -31,7 +31,7 @@ class MessageTest extends TestCase
     //群发用户
     $options = [
       'content' => $message_content,
-      'targets' => [1, 2, 3],
+      'targets' => [1, 2, 3, "some user_id"],
       'target_type' => 'user',
       'sender_id' => 1
     ];
