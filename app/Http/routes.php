@@ -24,6 +24,7 @@ $app->group(['prefix' => 'messages'], function () use ($app) {
   $app->get('/', ['uses' => 'App\Http\Controllers\MessagesController@index']);
   $app->post('/', ['uses' => 'App\Http\Controllers\MessagesController@create']);
   $app->post('/read', ['uses' => 'App\Http\Controllers\MessagesController@read']);
+  $app->delete('/{message_id}', ['uses' => 'App\Http\Controllers\MessagesController@destroy']);
 });
 
 $app->group(['prefix' => 'users'], function() use ($app){

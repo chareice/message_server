@@ -195,4 +195,26 @@ class MessagesControllerTest extends TestCase{
     $this->assertResponseOk();
     $this->assertEquals($namespaceMessage->id, $response->getData()->data[0]->id);
   }
+
+  //删除消息
+  public function testDeleteMessage(){
+    //创建一条全局消息
+    $options = [
+      'content' =>'Some Content',
+      'target_type' => 'globale',
+      'sender_id' => 1,
+      'title' => 'this is title',
+      'namespace' => 'oem1'
+    ];
+
+    $this->post('/messages', $options);
+    $this->assertResponseOk();
+    $this->seeInDatabase('messages', $options);
+
+    $message = Message::first();
+
+    $this->call('DELETE', '/messages/'.$message->id);
+    $this->assertEquals(0, Message::count());
+
+  }
 }

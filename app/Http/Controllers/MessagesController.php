@@ -99,4 +99,11 @@ class MessagesController extends Controller{
     $readMessages = Message::getRead($user_id);
     return $this->responseJson($readMessages);
   }
+
+  //删除消息
+  public function destroy($message_id){
+    $message = Message::find($message_id);
+    $message->delete();
+    return $this->responseJson();
+  }
 }
