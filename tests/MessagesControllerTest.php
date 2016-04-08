@@ -215,6 +215,25 @@ class MessagesControllerTest extends TestCase{
 
     $this->call('DELETE', '/messages/'.$message->id);
     $this->assertEquals(0, Message::count());
+  }
 
+  //获取消息信息
+  public function testGetMessageContent(){
+    //创建一条全局消息
+    $options = [
+      'content' =>'Some Content',
+      'target_type' => 'globale',
+      'sender_id' => 1,
+      'title' => 'this is title',
+      'namespace' => 'oem1'
+    ];
+
+    $this->post('/messages', $options);
+    $this->assertResponseOk();
+    $this->seeInDatabase('messages', $options);
+
+    $message = Message::first();
+    $response = $this->call('GET', '/messages/'.$message->id);
+    $this->assertEquals($message->id, $response->getData()->data->id);
   }
 }

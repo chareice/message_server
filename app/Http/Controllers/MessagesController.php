@@ -100,6 +100,12 @@ class MessagesController extends Controller{
     return $this->responseJson($readMessages);
   }
 
+  //获取消息内容
+  public function show($message_id){
+    $message = Message::find($message_id);
+    return $this->responseJson($message);
+  }
+
   //删除消息
   public function destroy($message_id){
     $message = Message::find($message_id);
