@@ -16,7 +16,7 @@ class CreateMessageTargetsTable extends Migration
           $table->integer('message_id')->unsigned()->index();
           $table->string('target_id')->index();
 
-          $table->foreign('message_id')->references('id')->on('messages');
+          $table->foreign('message_id')->references('id')->on('messages')->onDelete('cascade');;
           $table->primary(['message_id', 'target_id']);
         });
 

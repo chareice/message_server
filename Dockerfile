@@ -15,5 +15,9 @@ RUN composer install --no-dev
 
 RUN sed -i 's#DocumentRoot /var/www/html#DocumentRoot /var/www/webapp/public#' /etc/apache2/apache2.conf
 COPY . /var/www/webapp
+RUN chown www-data -R /var/www/webapp/storage
 RUN cp -r /tmp/composer-install/vendor /var/www/webapp
+
+WORKDIR /var/www/webapp
+
 CMD bash /var/www/webapp/start-up.sh

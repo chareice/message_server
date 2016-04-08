@@ -17,6 +17,7 @@ class CreateTargetStatusTable extends Migration
         $table->string('target_id')->index();
         //未读，已读，已删除
         $table->enum('status', ['unread', 'read', 'deleted']);
+        $table->foreign('message_id')->references('id')->on('messages')->onDelete('cascade');;
         $table->primary(['message_id', 'target_id']);
       });
     }
