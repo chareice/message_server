@@ -158,4 +158,37 @@ class MessagesControllerTest extends TestCase{
     $this->assertResponseOk();
     $this->assertEquals($firstMessage->id, $response->getData()->data[0]->id);
   }
+
+  //获取系统消息列表带命名空间
+  public function testGetMessagesWithNameSpace(){
+    //创建一条全局消息
+    $options = [
+      'content' =>'Some Content',
+      'target_type' => 'globale',
+      'sender_id' => 1,
+      'title' => 'this is title',
+      'namespace' => 'oem1'
+    ];
+
+    $this->post('/messages', $options);
+    $this->assertResponseOk();
+    $this->seeInDatabase('messages', $options);
+
+    $options = [
+      'content' =>'Some Content',
+      'target_type' => 'globale',
+      'sender_id' => 1,
+      'title' => 'this is title',
+    ];
+
+    $this->post('/messages', $options);
+    $this->assertResponseOk();
+    $this->seeInDatabase('messages', $options);
+
+    $namespaceMessage = Message::first();
+    $mainMessage = Message::orderBy('id', 'desc')->first();
+
+    $this->assertEquals('oem1', $namespaceMessage->namespace);
+    $this->assertEquals('main', $mainMessage->namespace);
+  }
 }

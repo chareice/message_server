@@ -57,19 +57,20 @@ class Message extends Model{
     $message = new self;
     $message_type = 'multcast';
 
-    $content = array_get($options, 'content', null);
-    $title = array_get($options, 'title', null);
-    $targets = array_get($options, 'targets', null);
-    $sender_id = array_get($options, 'sender_id', null);
-    $target_type = array_get($options, 'target_type', null);
-    $effective_time = array_get($options, 'effective_time', null);
-    $expiration_time = array_get($options, 'expiration_time', null);
+    $auto_assign_attrs = [
+      'content', 'title', 'namespace',
+      'sender_id', 'effective_time', 'expiration_time'
+    ];
 
-    $message->content = $content;
-    $message->title = $title;
-    $message->sender_id = $sender_id;
-    $message->effective_time = $effective_time;
-    $message->expiration_time = $expiration_time;
+    collect($auto_assign_attrs)->each(function($attr) use ($options, $message){
+      $attr_value = array_get($options, $attr, null);
+      if($attr_value){
+        $message->$attr = $attr_value;
+      }
+    });
+
+    $targets = array_get($options, 'targets', null);
+    $target_type = array_get($options, 'target_type', null);
 
     switch ($target_type) {
       case self::USER_TARGET_TYPE:

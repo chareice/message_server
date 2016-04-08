@@ -377,4 +377,26 @@ class MessageTest extends TestCase
     $this->assertEquals(0, count(Message::getUnRead(1)));
     $this->assertEquals(1, count(Message::getRead(1)));
   }
+
+  //测试消息带命名空间
+  public function testCreateMessageWithNameSpace(){
+    $message_content = 'some message content';
+    $namespace = 'oem1';
+
+    //群发用户
+    $options = [
+      'content' => $message_content,
+      'targets' => [1, 2, 3],
+      'target_type' => 'user',
+      'sender_id' => 1,
+      'title' => 'this is title',
+      'namespace' => 'oem1'
+    ];
+
+    $userMessage = Message::buildWithOptions($options);
+    $userMessage->save();
+
+    $message = Message::first();
+    $this->assertEquals($namespace, $message->namespace);
+  }
 }

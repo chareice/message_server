@@ -27,7 +27,6 @@ class CreateMessagesTable extends Migration
 
           //目标类型 可能是用户／群组／全体
           $table->enum('target_type', ['user', 'group', 'globale']);
-          
           //created_at and updated_at
           $table->timestamps();
         });

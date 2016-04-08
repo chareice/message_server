@@ -47,6 +47,7 @@ class MessagesController extends Controller{
     $sender_id = $request->input('sender_id');
     $expiration_time = $request->input('expiration_time');
     $effective_time = $request->input('effective_time');
+    $namespace = $request->input('namespace');
 
     $options = [
       'content' => $content,
@@ -55,7 +56,8 @@ class MessagesController extends Controller{
       'sender_id' => $sender_id,
       'title' => $title,
       'expiration_time' => $expiration_time,
-      'effective_time' => $effective_time
+      'effective_time' => $effective_time,
+      'namespace' => $namespace
     ];
 
     $message = Message::buildWithOptions($options);
