@@ -190,5 +190,9 @@ class MessagesControllerTest extends TestCase{
 
     $this->assertEquals('oem1', $namespaceMessage->namespace);
     $this->assertEquals('main', $mainMessage->namespace);
+
+    $response = $this->call('GET', '/messages?namespace=oem1');
+    $this->assertResponseOk();
+    $this->assertEquals($namespaceMessage->id, $response->getData()->data[0]->id);
   }
 }

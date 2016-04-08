@@ -11,11 +11,14 @@ use App\Message;
 class MessagesController extends Controller{
 
   public function index(Request $request){
+
+    #设置当前取页数
     $per_page = 15;
     if($request->input('per_page')){
-      $per_page = 1;
+      $per_page = $request->input('per_page');
     }
 
+    #设置当前页
     $current_page = 1;
     if($request->input('page')){
       $current_page = $request->input('page');
@@ -25,7 +28,12 @@ class MessagesController extends Controller{
       return $current_page;
     });
 
-    $messages = Message::orderBy('id', 'desc')->paginate($per_page);
+    $messages_query = Message::orderBy('id', 'desc');
+    if($request->input('namespace')){
+      $messages_query->where('namespace', $request->input('namespace'));
+    }
+
+    $messages = $messages_query->paginate($per_page);
 
     $messages_array = $messages->toArray();
 
