@@ -8,6 +8,7 @@ class Message extends Model{
   const USER_TARGET_TYPE = 'user';
   const GLOBALE_TARGET_TYPE = 'globale';
   const GROUP_TARGET_TYPE = 'group';
+  const DEFAULT_NAMESPACE = 'main';
 
   private $afterCreatedQueue = [];
 
@@ -121,62 +122,65 @@ class Message extends Model{
   }
 
   //获取未读消息
-  public static function getUnRead($user_id){
-    $res = self::getUnReadQueryBuilder($user_id)->get();
+  public static function getUnRead($user_id, $namespace='main'){
+    $res = self::getUnReadQueryBuilder($user_id, $namespace)->get();
     return $res;
   }
 
   //获取未读消息数量
-  public static function getUnReadCount($user_id){
-    $sub = self::getUnReadQueryBuilder($user_id);
-    $res = DB::table(DB::raw("({$sub->toSql()}) as sub"))
-            ->mergeBindings($sub->getQuery())
-            ->count();
+  public static function getUnReadCount($user_id, $namespace=Message::DEFAULT_NAMESPACE){
+    $sub = self::getUnReadQueryBuilder($user_id, $namespace);
+    $queryBuilder = DB::table(DB::raw("({$sub->toSql()}) as sub"))
+            ->mergeBindings($sub->getQuery());
+    $res = $queryBuilder->count();
     return $res;
   }
 
   //获取已读消息
-  public static function getRead($user_id){
-    return self::readMessagesQuery($user_id)->get();
+  public static function getRead($user_id, $namespace=Message::DEFAULT_NAMESPACE){
+    return self::readMessagesQuery($user_id, $namespace)->get();
   }
 
-  public static function getUnReadQueryBuilder($user_id){
-    $queryBuilder = self::globalUnReadMessageQuery($user_id)
-                          ->union(self::userUnReadMessagesQuery($user_id))
-                          ->union(self::groupUnReadMessagesQuery($user_id));
+  public static function getUnReadQueryBuilder($user_id, $namespace=Message::DEFAULT_NAMESPACE){
+    $queryBuilder = self::globalUnReadMessageQuery($user_id, $namespace)
+                          ->union(self::userUnReadMessagesQuery($user_id, $namespace))
+                          ->union(self::groupUnReadMessagesQuery($user_id, $namespace));
     return $queryBuilder;
   }
 
   //全局已读消息
-  public static function readMessagesQuery($user_id){
+  public static function readMessagesQuery($user_id, $namespace){
     $query = Message::select('messages.id', 'messages.content', 'messages.created_at', 'messages.sender_id')
               ->join('target_status', 'messages.id', '=', 'target_status.message_id')
               ->where('target_status.target_id', '=', $user_id)
+              ->where('messages.namespace', '=', $namespace)
               ->where('target_status.status', '=', 'read');
     return $query;
   }
 
   //全局未读消息
-  public static function globalUnReadMessageQuery($user_id){
+  public static function globalUnReadMessageQuery($user_id, $namespace){
     return Message::select('messages.id', 'messages.content', 'messages.created_at', 'messages.sender_id')
                             ->leftJoin('target_status', function($join) use ($user_id){
                               $join->on('messages.id', '=', 'target_status.message_id')
                                    ->where('target_status.target_id', '=', $user_id);
                             })->where('messages.target_type', '=', self::GLOBALE_TARGET_TYPE)
+                              ->where('messages.namespace', '=', $namespace)
                             ->whereNull('target_status.message_id');
   }
 
   //用户未读消息
-  public static function userUnReadMessagesQuery($user_id){
+  public static function userUnReadMessagesQuery($user_id, $namespace){
     return Message::select('messages.id', 'messages.content', 'messages.created_at', 'messages.sender_id')
                             ->join('message_targets', 'message_targets.message_id', '=', 'messages.id')
                             ->leftJoin('target_status', 'target_status.message_id', '=', 'messages.id')
                             ->where('message_targets.target_id', '=', $user_id)
+                            ->where('messages.namespace', '=', $namespace)
                             ->whereNull('target_status.message_id');
   }
 
   //未读群组消息
-  public static function groupUnReadMessagesQuery($user_id){
+  public static function groupUnReadMessagesQuery($user_id, $namespace){
     $query = Message::select('messages.id', 'messages.content', 'messages.created_at', 'messages.sender_id')
                             ->join('group_message', 'group_message.message_id', '=', 'messages.id')
                             ->join('groups', 'group_message.group_id', '=', 'groups.id')
@@ -185,6 +189,7 @@ class Message extends Model{
                               $join->on('messages.id', '=', 'target_status.message_id')
                                    ->on('target_status.target_id', '=', 'group_targets.target_id');
                             })->where('group_targets.target_id', '=', $user_id)
+                              ->where('messages.namespace', '=', $namespace)
                               ->whereNull('target_status.message_id');
     return $query;
   }

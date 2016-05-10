@@ -9,7 +9,8 @@ use App\Group;
 use App\Message;
 
 class MessagesController extends Controller{
-
+  const DEFAULT_NAMESPACE = 'main';
+  # 获取所有消息
   public function index(Request $request){
 
     #设置当前取页数
@@ -29,9 +30,7 @@ class MessagesController extends Controller{
     });
 
     $messages_query = Message::orderBy('id', 'desc');
-    if($request->input('namespace')){
-      $messages_query->where('namespace', $request->input('namespace'));
-    }
+    $messages_query->where('namespace', $request->input('namespace', self::DEFAULT_NAMESPACE));
 
     $messages = $messages_query->paginate($per_page);
 
@@ -75,13 +74,15 @@ class MessagesController extends Controller{
 
   //用户获取未读消息
   public function getUnReadMessage($user_id, Request $request){
-    $unreadMessages = Message::getUnRead($user_id);
+    $namespace = $request->input('namespace', self::DEFAULT_NAMESPACE);
+    $unreadMessages = Message::getUnRead($user_id, $namespace);
     return $this->responseJson($unreadMessages);
   }
 
   //获取未读消息数量
   public function getUnReadMessageCount($user_id, Request $request){
-    $unreadMessageCount = Message::getUnReadCount($user_id);
+    $namespace = $request->input('namespace', self::DEFAULT_NAMESPACE);
+    $unreadMessageCount = Message::getUnReadCount($user_id, $namespace);
     return $this->responseJson($unreadMessageCount);
   }
 
@@ -95,8 +96,9 @@ class MessagesController extends Controller{
   }
 
   //获取已读消息
-  public function getReadMessage($user_id){
-    $readMessages = Message::getRead($user_id);
+  public function getReadMessage($user_id, Request $request){
+    $namespace = $request->input('namespace', self::DEFAULT_NAMESPACE);
+    $readMessages = Message::getRead($user_id, $namespace);
     return $this->responseJson($readMessages);
   }
 

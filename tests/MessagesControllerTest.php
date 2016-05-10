@@ -185,7 +185,7 @@ class MessagesControllerTest extends TestCase{
     $this->assertResponseOk();
     $this->seeInDatabase('messages', $options);
 
-    $namespaceMessage = Message::first();
+    $namespaceMessage = Message::orderBy('id', 'asc')->first();
     $mainMessage = Message::orderBy('id', 'desc')->first();
 
     $this->assertEquals('oem1', $namespaceMessage->namespace);
@@ -194,6 +194,11 @@ class MessagesControllerTest extends TestCase{
     $response = $this->call('GET', '/messages?namespace=oem1');
     $this->assertResponseOk();
     $this->assertEquals($namespaceMessage->id, $response->getData()->data[0]->id);
+
+    //namespace用户获取未读消息
+    $response = $this->call('GET', '/users/1/unread_messages_count?namespace=oem1');
+    $this->assertResponseOk();
+    $this->assertEquals(1, $response->getData()->data);
   }
 
   //删除消息
@@ -235,5 +240,22 @@ class MessagesControllerTest extends TestCase{
     $message = Message::first();
     $response = $this->call('GET', '/messages/'.$message->id);
     $this->assertEquals($message->id, $response->getData()->data->id);
+
+    # 获取主命名空间消息
+    $response = $this->call('GET', '/messages/');
+    $this->assertEquals(0, count($response->getData()->data));
+    # 获取oem1命名空间消息
+    $response = $this->call('GET', '/messages?namespace=oem1');
+    $this->assertEquals(1, count($response->getData()->data));
+
+    # 用户获取oem1命名空间消息
+    $response = $this->call('GET', '/users/1/unread_messages_count?namespace=oem1');
+    $res = $response->getData()->data;
+    $this->assertEquals(1, $res);
+
+    # 获取主命名空间消息
+    $response = $this->call('GET', '/users/1/unread_messages_count');
+    $res = $response->getData()->data;
+    $this->assertEquals(0, $res);
   }
 }
