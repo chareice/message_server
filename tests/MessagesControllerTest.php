@@ -353,4 +353,31 @@ class MessagesControllerTest extends TestCase{
     $res = $response->getData()->data;
     $this->assertEquals(1, $res);
   }
+
+//   public function testMessageCreatePerformace(){
+//     $commonOptions = [
+//         'content' =>'Some Content',
+//         'target_type' => 'user',
+//         'sender_id' => 1
+//     ];
+//
+//     //起始
+//     $start = 5000;
+//     //百万消息
+// //    $end = 1000000;
+//     $end = 50000;
+//     //步长
+//     $step = 100;
+//
+//     for ($i=$start; $i <= $end; $i += $step){
+//       $startTime = microtime(true);
+//       $targets = range(10000, $i + 10000 - 1);
+//       $options = $commonOptions;
+//       $options['targets'] = $targets;
+//       $this->post('/messages', $options);
+//       $endTime = microtime(true);
+//       $totaltime = ($endTime - $startTime) * 1000;
+//       printf("%d %f\n", count($targets), $totaltime);
+//     }
+//   }
 }
