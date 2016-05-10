@@ -1,6 +1,7 @@
 <?php
 namespace App;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use DB;
 
@@ -59,8 +60,8 @@ class Message extends Model{
     $message_type = 'multcast';
 
     $auto_assign_attrs = [
-      'content', 'title', 'namespace',
-      'sender_id', 'effective_time', 'expiration_time'
+        'content', 'title', 'namespace',
+        'sender_id', 'effective_time', 'expiration_time'
     ];
 
     collect($auto_assign_attrs)->each(function($attr) use ($options, $message){
@@ -131,7 +132,7 @@ class Message extends Model{
   public static function getUnReadCount($user_id, $namespace=Message::DEFAULT_NAMESPACE){
     $sub = self::getUnReadQueryBuilder($user_id, $namespace);
     $queryBuilder = DB::table(DB::raw("({$sub->toSql()}) as sub"))
-            ->mergeBindings($sub->getQuery());
+        ->mergeBindings($sub->getQuery());
     $res = $queryBuilder->count();
     return $res;
   }
@@ -143,54 +144,80 @@ class Message extends Model{
 
   public static function getUnReadQueryBuilder($user_id, $namespace=Message::DEFAULT_NAMESPACE){
     $queryBuilder = self::globalUnReadMessageQuery($user_id, $namespace)
-                          ->union(self::userUnReadMessagesQuery($user_id, $namespace))
-                          ->union(self::groupUnReadMessagesQuery($user_id, $namespace));
+        ->union(self::userUnReadMessagesQuery($user_id, $namespace))
+        ->union(self::groupUnReadMessagesQuery($user_id, $namespace));
     return $queryBuilder;
   }
 
   //全局已读消息
   public static function readMessagesQuery($user_id, $namespace){
     $query = Message::select('messages.id', 'messages.content', 'messages.created_at', 'messages.sender_id')
-              ->join('target_status', 'messages.id', '=', 'target_status.message_id')
-              ->where('target_status.target_id', '=', $user_id)
-              ->where('messages.namespace', '=', $namespace)
-              ->where('target_status.status', '=', 'read');
+        ->join('target_status', 'messages.id', '=', 'target_status.message_id')
+        ->where('target_status.target_id', '=', $user_id)
+        ->where('messages.namespace', '=', $namespace)
+        ->where('target_status.status', '=', 'read');
     return $query;
   }
 
   //全局未读消息
   public static function globalUnReadMessageQuery($user_id, $namespace){
-    return Message::select('messages.id', 'messages.content', 'messages.created_at', 'messages.sender_id')
-                            ->leftJoin('target_status', function($join) use ($user_id){
-                              $join->on('messages.id', '=', 'target_status.message_id')
-                                   ->where('target_status.target_id', '=', $user_id);
-                            })->where('messages.target_type', '=', self::GLOBALE_TARGET_TYPE)
-                              ->where('messages.namespace', '=', $namespace)
-                            ->whereNull('target_status.message_id');
+    $now = Carbon::now()->toDateTimeString();
+    $queryBuilder = Message::select('messages.id', 'messages.content', 'messages.created_at', 'messages.sender_id')
+        ->leftJoin('target_status', function($join) use ($user_id){
+          $join->on('messages.id', '=', 'target_status.message_id')
+              ->where('target_status.target_id', '=', $user_id);
+        })->where('messages.target_type', '=', self::GLOBALE_TARGET_TYPE)
+        ->where('messages.namespace', '=', $namespace)
+        ->where(function($query) use ($now){
+          $query->where('messages.effective_time', '=', null)
+              ->orWhere('messages.effective_time', '<', $now);
+        })->where(function($query) use ($now){
+          $query->where('messages.expiration_time', '=', null)
+              ->orWhere('messages.expiration_time', '>', $now);
+        })
+        ->whereNull('target_status.message_id');
+    return $queryBuilder;
   }
 
   //用户未读消息
   public static function userUnReadMessagesQuery($user_id, $namespace){
-    return Message::select('messages.id', 'messages.content', 'messages.created_at', 'messages.sender_id')
-                            ->join('message_targets', 'message_targets.message_id', '=', 'messages.id')
-                            ->leftJoin('target_status', 'target_status.message_id', '=', 'messages.id')
-                            ->where('message_targets.target_id', '=', $user_id)
-                            ->where('messages.namespace', '=', $namespace)
-                            ->whereNull('target_status.message_id');
+    $now = Carbon::now()->toDateTimeString();
+    $queryBuilder =  Message::select('messages.id', 'messages.content', 'messages.created_at', 'messages.sender_id')
+        ->join('message_targets', 'message_targets.message_id', '=', 'messages.id')
+        ->leftJoin('target_status', 'target_status.message_id', '=', 'messages.id')
+        ->where('message_targets.target_id', '=', $user_id)
+        ->where('messages.namespace', '=', $namespace)
+        ->where(function($query) use ($now){
+          $query->where('messages.effective_time', '=', null)
+              ->orWhere('messages.effective_time', '<', $now);
+        })->where(function($query) use ($now){
+          $query->where('messages.expiration_time', '=', null)
+              ->orWhere('messages.expiration_time', '>', $now);
+        })
+        ->whereNull('target_status.message_id');
+    return $queryBuilder;
   }
 
   //未读群组消息
   public static function groupUnReadMessagesQuery($user_id, $namespace){
+    $now = Carbon::now()->toDateTimeString();
     $query = Message::select('messages.id', 'messages.content', 'messages.created_at', 'messages.sender_id')
-                            ->join('group_message', 'group_message.message_id', '=', 'messages.id')
-                            ->join('groups', 'group_message.group_id', '=', 'groups.id')
-                            ->join('group_targets', 'groups.id', '=', 'group_targets.group_id')
-                            ->leftJoin('target_status', function($join){
-                              $join->on('messages.id', '=', 'target_status.message_id')
-                                   ->on('target_status.target_id', '=', 'group_targets.target_id');
-                            })->where('group_targets.target_id', '=', $user_id)
-                              ->where('messages.namespace', '=', $namespace)
-                              ->whereNull('target_status.message_id');
+        ->join('group_message', 'group_message.message_id', '=', 'messages.id')
+        ->join('groups', 'group_message.group_id', '=', 'groups.id')
+        ->join('group_targets', 'groups.id', '=', 'group_targets.group_id')
+        ->leftJoin('target_status', function($join){
+          $join->on('messages.id', '=', 'target_status.message_id')
+              ->on('target_status.target_id', '=', 'group_targets.target_id');
+        })->where('group_targets.target_id', '=', $user_id)
+        ->where('messages.namespace', '=', $namespace)
+        ->where(function($query) use ($now){
+          $query->where('messages.effective_time', '=', null)
+              ->orWhere('messages.effective_time', '<', $now);
+        })->where(function($query) use ($now){
+          $query->where('messages.expiration_time', '=', null)
+              ->orWhere('messages.expiration_time', '>', $now);
+        })
+        ->whereNull('target_status.message_id');
     return $query;
   }
 }

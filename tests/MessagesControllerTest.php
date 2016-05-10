@@ -1,5 +1,6 @@
 <?php
 
+use Carbon\Carbon;
 use Laravel\Lumen\Testing\DatabaseTransactions;
 use App\Group;
 use App\Message;
@@ -257,5 +258,99 @@ class MessagesControllerTest extends TestCase{
     $response = $this->call('GET', '/users/1/unread_messages_count');
     $res = $response->getData()->data;
     $this->assertEquals(0, $res);
+  }
+
+  public function testTimeBoundMessage(){
+    //创建一条没有设置实效的消息 能够获取到该消息
+    $options = [
+        'content' =>'Some Content',
+        'target_type' => 'globale',
+        'sender_id' => 1,
+        'title' => 'this is title'
+    ];
+
+    $this->post('/messages', $options);
+    $this->assertResponseOk();
+    $this->seeInDatabase('messages', $options);
+
+    $response = $this->call('GET', '/users/1/unread_messages_count');
+    $res = $response->getData()->data;
+    $this->assertEquals(1, $res);
+  }
+
+  public function testTimeBoundWithEffectiveTimeFutureMessage(){
+    //创建一条明天才生效的消息 不能获取到该消息
+    $options = [
+        'content' =>'Some Content',
+        'target_type' => 'globale',
+        'sender_id' => 1,
+        'title' => 'this is title',
+        'effective_time' => Carbon::now()->addDay()->toDateTimeString()
+    ];
+
+    $this->post('/messages', $options);
+    $this->assertResponseOk();
+    $this->seeInDatabase('messages', $options);
+
+    $response = $this->call('GET', '/users/1/unread_messages_count');
+    $res = $response->getData()->data;
+    $this->assertEquals(0, $res);
+  }
+
+  public function testTimeBoundWithEffectiveTimeAgoMessage(){
+    //创建一条昨天已经生效的消息 能获取到该消息
+    $options = [
+        'content' =>'Some Content',
+        'target_type' => 'globale',
+        'sender_id' => 1,
+        'title' => 'this is title',
+        'effective_time' => Carbon::now()->subDay()->toDateTimeString()
+    ];
+
+    $this->post('/messages', $options);
+    $this->assertResponseOk();
+    $this->seeInDatabase('messages', $options);
+
+    $response = $this->call('GET', '/users/1/unread_messages_count');
+    $res = $response->getData()->data;
+    $this->assertEquals(1, $res);
+  }
+
+  public function testTimeBoundWithExpirationTimeAgoMessage(){
+    //创建一条昨天过期的消息 不能获取到该消息
+    $options = [
+        'content' =>'Some Content',
+        'target_type' => 'globale',
+        'sender_id' => 1,
+        'title' => 'this is title',
+        'expiration_time' => Carbon::now()->subDay()->toDateTimeString()
+    ];
+
+    $this->post('/messages', $options);
+    $this->assertResponseOk();
+    $this->seeInDatabase('messages', $options);
+
+    $response = $this->call('GET', '/users/1/unread_messages_count');
+    $res = $response->getData()->data;
+    $this->assertEquals(0, $res);
+  }
+
+  public function testTimeBoundWithExpirationTimeFutureMessage(){
+    //创建一条明天过期的消息 能获取到该消息
+    $options = [
+        'content' =>'Some Content',
+        'target_type' => 'globale',
+        'sender_id' => 1,
+        'title' => 'this is title',
+        'expiration_time' => Carbon::now()->addDay()->toDateTimeString()
+    ];
+
+    $this->post('/messages', $options);
+    $this->assertResponseOk();
+    $this->seeInDatabase('messages', $options);
+
+    $response = $this->call('GET', '/users/1/unread_messages_count');
+    $res = $response->getData()->data;
+    $this->assertEquals(1, $res);
   }
 }
