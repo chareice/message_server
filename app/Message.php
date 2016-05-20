@@ -21,18 +21,23 @@ class Message extends Model{
     });
   }
 
+  /* 增加分片插入
+   * General error: 1390 Prepared statement contains too many placeholders
+   * PlaceHolders的项目数不能超过65535 对于本应用意味着不能超过32767
+   */
   public function afterCreate(){
     DB::transaction(function(){
       if($this->target_type == self::USER_TARGET_TYPE){
-        $insertQueue = [];
-        foreach ($this->afterCreatedQueue as $key => $value) {
-          $item = [];
-          $item['message_id'] = $this->id;
-          $item['target_id'] = $value;
-          array_push($insertQueue, $item);
+        foreach(array_chunk($this->afterCreatedQueue, 5000) as $chunk){
+          $insertQueue = [];
+          foreach ($chunk as $key => $value) {
+            $item = [];
+            $item['message_id'] = $this->id;
+            $item['target_id'] = $value;
+            array_push($insertQueue, $item);
+          }
+          DB::table('message_targets')->insert($insertQueue);
         }
-
-        DB::table('message_targets')->insert($insertQueue);
 
       }else if($this->target_type == self::GROUP_TARGET_TYPE){
         $groups = Group::whereIn('id', $this->afterCreatedQueue)->get();

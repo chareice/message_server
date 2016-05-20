@@ -35,10 +35,10 @@ class MessagesController extends Controller{
     $messages = $messages_query->paginate($per_page);
 
     $messages_array = $messages->toArray();
-
     $data = $messages_array['data'];
     $meta = [
       'current_page' => $messages_array['current_page'],
+      'last_page' => $messages_array['last_page'],
       'total' => $messages_array['total'],
       'per_page' => $messages_array['per_page']
     ];
