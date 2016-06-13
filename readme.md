@@ -136,7 +136,7 @@ curl -X DELETE $host/groups/2
 参数：
 
 1. content(string): 消息内容
-2. target_type(string): 消息发送类型，可选项为：`user`、`group`、`globale`，分别为发送给用户的消息，发送给群组的消息和发送给全体的消息。
+2. target_type(string): 消息发送类型，可选项为：`user`、`group`、`global`，分别为发送给用户的消息，发送给群组的消息和发送给全体的消息。
 3. targets(array of int): 发送类型为`user`和`group`时可用，标示要接收的群体。
 4. sender_id(int): 消息发送者ID
 

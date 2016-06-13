@@ -7,10 +7,10 @@ use App\Message;
 
 class MessagesControllerTest extends TestCase{
   //发送全局消息测试
-  public function testCreateMessageForGlobaleUser(){
+  public function testCreateMessageForglobalUser(){
     $options = [
       'content' =>'Some Content',
-      'target_type' => 'globale',
+      'target_type' => 'global',
       'sender_id' => 1,
       'title' => 'this is title'
     ];
@@ -21,10 +21,10 @@ class MessagesControllerTest extends TestCase{
   }
 
   //发送带有效期的函数
-  public function testCreateMessageForGlobaleUserWithExpirationTime(){
+  public function testCreateMessageForglobalUserWithExpirationTime(){
     $options = [
       'content' =>'Some Content',
-      'target_type' => 'globale',
+      'target_type' => 'global',
       'sender_id' => 1,
       'title' => 'this is title',
       'expiration_time'=> '2018-01-01'
@@ -42,7 +42,7 @@ class MessagesControllerTest extends TestCase{
     //创建一条全局消息
     $options = [
       'content' =>'Some Content',
-      'target_type' => 'globale',
+      'target_type' => 'global',
       'sender_id' => 1,
       'title' => 'this is title'
     ];
@@ -61,7 +61,7 @@ class MessagesControllerTest extends TestCase{
     //创建一条全局消息
     $options = [
       'content' =>'Some Content',
-      'target_type' => 'globale',
+      'target_type' => 'global',
       'sender_id' => 1,
       'title' => 'this is title'
     ];
@@ -81,7 +81,7 @@ class MessagesControllerTest extends TestCase{
     //创建一条全局消息
     $options = [
       'content' =>'Some Content',
-      'target_type' => 'globale',
+      'target_type' => 'global',
       'sender_id' => 1,
       'title' => 'this is title'
     ];
@@ -102,7 +102,7 @@ class MessagesControllerTest extends TestCase{
     //创建一条全局消息
     $options = [
       'content' =>'Some Content',
-      'target_type' => 'globale',
+      'target_type' => 'global',
       'sender_id' => 1,
       'title' => 'this is title'
     ];
@@ -126,7 +126,7 @@ class MessagesControllerTest extends TestCase{
     //创建一条全局消息
     $options = [
       'content' =>'Some Content',
-      'target_type' => 'globale',
+      'target_type' => 'global',
       'sender_id' => 1,
       'title' => 'this is title'
     ];
@@ -137,7 +137,7 @@ class MessagesControllerTest extends TestCase{
 
     $options = [
       'content' =>'Some Content',
-      'target_type' => 'globale',
+      'target_type' => 'global',
       'sender_id' => 1,
       'title' => 'this is title'
     ];
@@ -165,7 +165,7 @@ class MessagesControllerTest extends TestCase{
     //创建一条全局消息
     $options = [
       'content' =>'Some Content',
-      'target_type' => 'globale',
+      'target_type' => 'global',
       'sender_id' => 1,
       'title' => 'this is title',
       'namespace' => 'oem1'
@@ -177,7 +177,7 @@ class MessagesControllerTest extends TestCase{
 
     $options = [
       'content' =>'Some Content',
-      'target_type' => 'globale',
+      'target_type' => 'global',
       'sender_id' => 1,
       'title' => 'this is title',
     ];
@@ -207,7 +207,7 @@ class MessagesControllerTest extends TestCase{
     //创建一条全局消息
     $options = [
       'content' =>'Some Content',
-      'target_type' => 'globale',
+      'target_type' => 'global',
       'sender_id' => 1,
       'title' => 'this is title',
       'namespace' => 'oem1'
@@ -228,7 +228,7 @@ class MessagesControllerTest extends TestCase{
     //创建一条全局消息
     $options = [
       'content' =>'Some Content',
-      'target_type' => 'globale',
+      'target_type' => 'global',
       'sender_id' => 1,
       'title' => 'this is title',
       'namespace' => 'oem1'
@@ -264,7 +264,7 @@ class MessagesControllerTest extends TestCase{
     //创建一条没有设置实效的消息 能够获取到该消息
     $options = [
         'content' =>'Some Content',
-        'target_type' => 'globale',
+        'target_type' => 'global',
         'sender_id' => 1,
         'title' => 'this is title'
     ];
@@ -282,7 +282,7 @@ class MessagesControllerTest extends TestCase{
     //创建一条明天才生效的消息 不能获取到该消息
     $options = [
         'content' =>'Some Content',
-        'target_type' => 'globale',
+        'target_type' => 'global',
         'sender_id' => 1,
         'title' => 'this is title',
         'effective_time' => Carbon::now()->addDay()->toDateTimeString()
@@ -301,7 +301,7 @@ class MessagesControllerTest extends TestCase{
     //创建一条昨天已经生效的消息 能获取到该消息
     $options = [
         'content' =>'Some Content',
-        'target_type' => 'globale',
+        'target_type' => 'global',
         'sender_id' => 1,
         'title' => 'this is title',
         'effective_time' => Carbon::now()->subDay()->toDateTimeString()
@@ -320,7 +320,7 @@ class MessagesControllerTest extends TestCase{
     //创建一条昨天过期的消息 不能获取到该消息
     $options = [
         'content' =>'Some Content',
-        'target_type' => 'globale',
+        'target_type' => 'global',
         'sender_id' => 1,
         'title' => 'this is title',
         'expiration_time' => Carbon::now()->subDay()->toDateTimeString()
@@ -339,7 +339,7 @@ class MessagesControllerTest extends TestCase{
     //创建一条明天过期的消息 能获取到该消息
     $options = [
         'content' =>'Some Content',
-        'target_type' => 'globale',
+        'target_type' => 'global',
         'sender_id' => 1,
         'title' => 'this is title',
         'expiration_time' => Carbon::now()->addDay()->toDateTimeString()

@@ -117,12 +117,12 @@ class MessageTest extends TestCase
   }
 
   //发送全局消息
-  public function testCreateMessageForGlobaleUser(){
+  public function testCreateMessageForglobalUser(){
     $message_content = 'some message';
 
     $options = [
       'content' => $message_content,
-      'target_type' => 'globale',
+      'target_type' => 'global',
       'sender_id' => 1,
       'title' => 'this is title'
     ];
@@ -137,13 +137,13 @@ class MessageTest extends TestCase
   }
 
   //获取全局未读消息
-  public function testGetGlobaleUnReadMessage(){
+  public function testGetglobalUnReadMessage(){
     $message_content = 'some message';
 
     //写入全局消息
     $options = [
       'content' => $message_content,
-      'target_type' => 'globale',
+      'target_type' => 'global',
       'sender_id' => 1,
       'title' => 'this is title'
     ];
@@ -244,7 +244,7 @@ class MessageTest extends TestCase
 
     $options = [
       'content' => $message_content,
-      'target_type' => 'globale',
+      'target_type' => 'global',
       'sender_id' => 1,
       'title' => 'this is title'
     ];
@@ -281,15 +281,15 @@ class MessageTest extends TestCase
     //全局消息
     $options = [
       'content' => $message_content,
-      'target_type' => 'globale',
+      'target_type' => 'global',
       'sender_id' => 1,
       'title' => 'this is title'
     ];
 
-    $messageGlobale = Message::buildWithOptions($options);
-    $messageGlobale->save();
+    $messageglobal = Message::buildWithOptions($options);
+    $messageglobal->save();
     $this->assertEquals(1, count(Message::getUnRead(1)));
-    $messageGlobale->readBy(1);
+    $messageglobal->readBy(1);
     $this->assertEquals(0, count(Message::getUnRead(1)));
 
     //群组发消息
@@ -335,7 +335,7 @@ class MessageTest extends TestCase
   }
 
   //测试获取已读消息
-  public function testGetGlobaleReadMessage(){
+  public function testGetglobalReadMessage(){
     $message_content = 'some message content';
 
     //群发用户

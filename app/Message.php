@@ -7,7 +7,7 @@ use DB;
 
 class Message extends Model{
   const USER_TARGET_TYPE = 'user';
-  const GLOBALE_TARGET_TYPE = 'globale';
+  const global_TARGET_TYPE = 'global';
   const GROUP_TARGET_TYPE = 'group';
   const DEFAULT_NAMESPACE = 'main';
 
@@ -84,8 +84,8 @@ class Message extends Model{
         $message->prepareUserMessage($targets);
         break;
 
-      case self::GLOBALE_TARGET_TYPE:
-        $message->prepareGlobaleMessage();
+      case self::global_TARGET_TYPE:
+        $message->prepareglobalMessage();
         break;
 
       case self::GROUP_TARGET_TYPE:
@@ -101,8 +101,8 @@ class Message extends Model{
   }
 
   //设置全局消息
-  public function prepareGlobaleMessage(){
-    $this->target_type = self::GLOBALE_TARGET_TYPE;
+  public function prepareglobalMessage(){
+    $this->target_type = self::global_TARGET_TYPE;
   }
 
   //设置用户消息
@@ -171,7 +171,7 @@ class Message extends Model{
         ->leftJoin('target_status', function($join) use ($user_id){
           $join->on('messages.id', '=', 'target_status.message_id')
               ->where('target_status.target_id', '=', $user_id);
-        })->where('messages.target_type', '=', self::GLOBALE_TARGET_TYPE)
+        })->where('messages.target_type', '=', self::global_TARGET_TYPE)
         ->where('messages.namespace', '=', $namespace)
         ->where(function($query) use ($now){
           $query->where('messages.effective_time', '=', null)
