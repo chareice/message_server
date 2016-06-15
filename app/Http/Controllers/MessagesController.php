@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 use App\Group;
 use App\Message;
-
 class MessagesController extends Controller{
   const DEFAULT_NAMESPACE = 'main';
   # 获取所有消息
@@ -75,8 +75,27 @@ class MessagesController extends Controller{
   //用户获取未读消息
   public function getUnReadMessage($user_id, Request $request){
     $namespace = $request->input('namespace', self::DEFAULT_NAMESPACE);
-    $unreadMessages = Message::getUnRead($user_id, $namespace);
-    return $this->responseJson($unreadMessages);
+    $unreadMessageQuery = Message::getUnReadQueryBuilder($user_id, $namespace);
+
+    $messages = $unreadMessageQuery->get();
+
+    $page = $request->input('page', 1);
+    $paginate = 15;
+
+    $slice = $messages->slice($paginate * ($page - 1), $paginate);
+    $messages = new LengthAwarePaginator($slice, count($messages), $paginate);
+
+    $messages = $messages->toArray();
+
+    $data = $messages['data'];
+    $meta = [
+        'current_page' => $messages['current_page'],
+        'last_page' => $messages['last_page'],
+        'total' => $messages['total'],
+        'per_page' => $messages['per_page']
+    ];
+
+    return $this->responseJson($data, $meta);
   }
 
   //获取未读消息数量
@@ -98,8 +117,17 @@ class MessagesController extends Controller{
   //获取已读消息
   public function getReadMessage($user_id, Request $request){
     $namespace = $request->input('namespace', self::DEFAULT_NAMESPACE);
-    $readMessages = Message::getRead($user_id, $namespace);
-    return $this->responseJson($readMessages);
+    $readMessageQuery = Message::readMessagesQuery($user_id, $namespace);
+    $messages = $readMessageQuery->paginate()->toArray();
+
+    $data = $messages['data'];
+    $meta = [
+        'current_page' => $messages['current_page'],
+        'last_page' => $messages['last_page'],
+        'total' => $messages['total'],
+        'per_page' => $messages['per_page']
+    ];
+    return $this->responseJson($data, $meta);
   }
 
   //获取消息内容

@@ -4,6 +4,7 @@ namespace App;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use DB;
+use Log;
 
 class Message extends Model{
   const USER_TARGET_TYPE = 'user';
@@ -150,7 +151,8 @@ class Message extends Model{
   public static function getUnReadQueryBuilder($user_id, $namespace=Message::DEFAULT_NAMESPACE){
     $queryBuilder = self::globalUnReadMessageQuery($user_id, $namespace)
         ->union(self::userUnReadMessagesQuery($user_id, $namespace))
-        ->union(self::groupUnReadMessagesQuery($user_id, $namespace));
+        ->union(self::groupUnReadMessagesQuery($user_id, $namespace))
+        ->orderBy('id', 'desc');
     return $queryBuilder;
   }
 
@@ -160,7 +162,8 @@ class Message extends Model{
         ->join('target_status', 'messages.id', '=', 'target_status.message_id')
         ->where('target_status.target_id', '=', $user_id)
         ->where('messages.namespace', '=', $namespace)
-        ->where('target_status.status', '=', 'read');
+        ->where('target_status.status', '=', 'read')
+        ->orderBy('id', 'desc');
     return $query;
   }
 
