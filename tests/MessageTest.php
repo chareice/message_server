@@ -399,4 +399,29 @@ class MessageTest extends TestCase
     $message = Message::first();
     $this->assertEquals($namespace, $message->namespace);
   }
+
+  //将单发消息和全局消息(已读未读)一起取出来
+  public function testMergeMessage(){
+    $message_content = 'some message content';
+
+    //群发用户
+    $options = [
+        'content' => $message_content,
+        'targets' => [1, 2, 3],
+        'target_type' => 'user',
+        'sender_id' => 1,
+        'title' => 'this is title'
+    ];
+
+    $userMessage = Message::buildWithOptions($options);
+    $userMessage->save();
+
+    $userMessage = Message::buildWithOptions($options);
+    $userMessage->save();
+    $userMessage->readBy(1);
+
+    $messages = Message::mergedQuery(1)->get();
+    $this->assertEquals($messages[0]->read_status, 'unread');
+    $this->assertEquals($messages[1]->read_status, 'read');
+  }
 }

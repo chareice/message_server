@@ -354,6 +354,38 @@ class MessagesControllerTest extends TestCase{
     $this->assertEquals(1, $res);
   }
 
+  public function testGetMergedMessages(){
+    $message_content = 'some message content';
+
+    //群发用户
+    $options = [
+        'content' => $message_content,
+        'targets' => [1, 2, 3],
+        'target_type' => 'user',
+        'sender_id' => 1,
+        'title' => 'this is title'
+    ];
+
+    $userMessage = Message::buildWithOptions($options);
+    $userMessage->save();
+
+    $userMessage = Message::buildWithOptions($options);
+    $userMessage->save();
+
+    $options = [
+        'content' => $message_content,
+        'target_type' => 'global',
+        'sender_id' => 1,
+        'title' => 'this is title'
+    ];
+
+    $userMessage = Message::buildWithOptions($options);
+    $userMessage->save();
+
+    $response = $this->call('GET', '/users/1/merged_messages');
+    $this->assertResponseOk();
+  }
+
 //   public function testMessageCreatePerformace(){
 //     $commonOptions = [
 //         'content' =>'Some Content',

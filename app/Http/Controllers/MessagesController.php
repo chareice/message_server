@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Pagination\LengthAwarePaginator;
 
+use DB;
+
 use App\Group;
 use App\Message;
 class MessagesController extends Controller{
@@ -30,7 +32,7 @@ class MessagesController extends Controller{
     });
 
     $messages_query = Message::orderBy('id', 'desc');
-    $messages_query->where('namespace', $request->input('namespace', self::DEFAULT_NAMESPACE));
+    $messages_query->where('namespace', $request->input('namespace', self::DEFAULT_NAMESPACE))->orderBy('id', 'desc');
 
     $messages = $messages_query->paginate($per_page);
 
@@ -75,7 +77,7 @@ class MessagesController extends Controller{
   //用户获取未读消息
   public function getUnReadMessage($user_id, Request $request){
     $namespace = $request->input('namespace', self::DEFAULT_NAMESPACE);
-    $unreadMessageQuery = Message::getUnReadQueryBuilder($user_id, $namespace);
+    $unreadMessageQuery = Message::getUnReadQueryBuilder($user_id, $namespace)->orderBy('id', 'desc');
 
     $messages = $unreadMessageQuery->get();
 
@@ -117,7 +119,7 @@ class MessagesController extends Controller{
   //获取已读消息
   public function getReadMessage($user_id, Request $request){
     $namespace = $request->input('namespace', self::DEFAULT_NAMESPACE);
-    $readMessageQuery = Message::readMessagesQuery($user_id, $namespace);
+    $readMessageQuery = Message::readMessagesQuery($user_id, $namespace)->orderBy('id', 'desc');
     $messages = $readMessageQuery->paginate()->toArray();
 
     $data = $messages['data'];
@@ -126,6 +128,32 @@ class MessagesController extends Controller{
         'last_page' => $messages['last_page'],
         'total' => $messages['total'],
         'per_page' => $messages['per_page']
+    ];
+    return $this->responseJson($data, $meta);
+  }
+
+  //获取合并消息
+  public function getMergedMessage($user_id, Request $request){
+    $namespace = $request->input('namespace', self::DEFAULT_NAMESPACE);
+    $mergedMessageQuery = Message::mergedQuery($user_id, $namespace);
+    $mergedMessageQuery = $mergedMessageQuery->orderBy('id', 'desc');
+
+    $per_page = 10;
+    $page = $request->input('page');
+    $skip = ($page - 1) * $per_page;
+
+    $countQuery = DB::table(DB::raw("({$mergedMessageQuery->toSql()}) as sub"))
+        ->mergeBindings($mergedMessageQuery->getQuery());
+
+    $count = $countQuery->count();
+
+    $messages = $mergedMessageQuery->skip($skip)->take($per_page)->get();
+    $data = $messages;
+    $meta = [
+        'current_page' => $page,
+        'last_page' => $count % $per_page,
+        'total' => $count,
+        'per_page' => $per_page
     ];
     return $this->responseJson($data, $meta);
   }

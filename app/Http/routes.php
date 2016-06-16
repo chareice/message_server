@@ -35,4 +35,6 @@ $app->group(['prefix' => 'users'], function() use ($app){
   $app->get('{user_id}/unread_messages_count', ['uses' => 'App\Http\Controllers\MessagesController@getUnReadMessageCount']);
   //获取已读消息
   $app->get('{user_id}/read_messages', ['uses' => 'App\Http\Controllers\MessagesController@getReadMessage']);
+  //获取合并消息
+  $app->get('{user_id}/merged_messages', App\Http\Controllers\MessagesController::class.'@getMergedMessage');
 });
