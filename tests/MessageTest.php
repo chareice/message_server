@@ -348,7 +348,6 @@ class MessageTest extends TestCase
     ];
     $userMessage = Message::buildWithOptions($options);
     $userMessage->save();
-
     $this->assertEquals(1, Message::getUnReadCount(1));
     $this->assertEquals(0, count(Message::getRead(1)));
     $userMessage->readBy(1);

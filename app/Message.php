@@ -63,7 +63,6 @@ class Message extends Model{
 
   public static function buildWithOptions($options){
     $message = new self;
-    $message_type = 'multcast';
 
     $auto_assign_attrs = [
         'content', 'title', 'namespace',
@@ -145,7 +144,7 @@ class Message extends Model{
 
   //获取已读消息
   public static function getRead($user_id, $namespace=Message::DEFAULT_NAMESPACE){
-    return self::readMessagesQuery($user_id, $namespace)->get();
+    return self::readMessagesQueryWithReadAt($user_id, $namespace)->get();
   }
 
   public static function getUnReadQueryBuilder($user_id, $namespace=Message::DEFAULT_NAMESPACE){
@@ -155,9 +154,20 @@ class Message extends Model{
     return $queryBuilder;
   }
 
+  public static function readMessagesQueryWithReadAt($user_id, $namespace){
+    $query = Message::select('messages.id', 'messages.title', 'messages.content',
+        'messages.created_at', 'messages.sender_id', DB::raw("'read' as read_status"), 'target_status.created_at as read_at')
+        ->join('target_status', 'messages.id', '=', 'target_status.message_id')
+        ->where('target_status.target_id', '=', $user_id)
+        ->where('messages.namespace', '=', $namespace)
+        ->where('target_status.status', '=', 'read');
+    return $query;
+  }
+
   //全局已读消息
   public static function readMessagesQuery($user_id, $namespace){
-    $query = Message::select('messages.id', 'messages.content', 'messages.created_at', 'messages.sender_id', DB::raw("'read' as read_status"))
+    $query = Message::select('messages.id', 'messages.title', 'messages.content',
+        'messages.created_at', 'messages.sender_id', DB::raw("'read' as read_status"))
         ->join('target_status', 'messages.id', '=', 'target_status.message_id')
         ->where('target_status.target_id', '=', $user_id)
         ->where('messages.namespace', '=', $namespace)
@@ -168,7 +178,7 @@ class Message extends Model{
   //全局未读消息
   public static function globalUnReadMessageQuery($user_id, $namespace){
     $now = Carbon::now()->toDateTimeString();
-    $queryBuilder = Message::select('messages.id', 'messages.content', 'messages.created_at', 'messages.sender_id', DB::raw("'unread' as read_status"))
+    $queryBuilder = Message::select('messages.id', 'messages.title', 'messages.content', 'messages.created_at', 'messages.sender_id', DB::raw("'unread' as read_status"))
         ->leftJoin('target_status', function($join) use ($user_id){
           $join->on('messages.id', '=', 'target_status.message_id')
               ->where('target_status.target_id', '=', $user_id);
@@ -188,7 +198,7 @@ class Message extends Model{
   //用户未读消息
   public static function userUnReadMessagesQuery($user_id, $namespace){
     $now = Carbon::now()->toDateTimeString();
-    $queryBuilder =  Message::select('messages.id', 'messages.content', 'messages.created_at', 'messages.sender_id', DB::raw("'unread' as read_status"))
+    $queryBuilder =  Message::select('messages.id', 'messages.title', 'messages.content', 'messages.created_at', 'messages.sender_id', DB::raw("'unread' as read_status"))
         ->join('message_targets', 'message_targets.message_id', '=', 'messages.id')
         ->leftJoin('target_status', 'target_status.message_id', '=', 'messages.id')
         ->where('message_targets.target_id', '=', $user_id)
@@ -207,7 +217,7 @@ class Message extends Model{
   //未读群组消息
   public static function groupUnReadMessagesQuery($user_id, $namespace){
     $now = Carbon::now()->toDateTimeString();
-    $query = Message::select('messages.id', 'messages.content', 'messages.created_at', 'messages.sender_id', DB::raw("'unread' as read_status"))
+    $query = Message::select('messages.id', 'messages.title', 'messages.content', 'messages.created_at', 'messages.sender_id', DB::raw("'unread' as read_status"))
         ->join('group_message', 'group_message.message_id', '=', 'messages.id')
         ->join('groups', 'group_message.group_id', '=', 'groups.id')
         ->join('group_targets', 'groups.id', '=', 'group_targets.group_id')

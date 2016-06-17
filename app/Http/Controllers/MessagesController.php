@@ -82,7 +82,7 @@ class MessagesController extends Controller{
     $messages = $unreadMessageQuery->get();
 
     $page = $request->input('page', 1);
-    $paginate = 15;
+    $paginate = $request->input('per_page', 20);
 
     $slice = $messages->slice($paginate * ($page - 1), $paginate);
     $messages = new LengthAwarePaginator($slice, count($messages), $paginate);
@@ -119,7 +119,7 @@ class MessagesController extends Controller{
   //获取已读消息
   public function getReadMessage($user_id, Request $request){
     $namespace = $request->input('namespace', self::DEFAULT_NAMESPACE);
-    $readMessageQuery = Message::readMessagesQuery($user_id, $namespace)->orderBy('id', 'desc');
+    $readMessageQuery = Message::readMessagesQueryWithReadAt($user_id, $namespace)->orderBy('id', 'desc');
     $messages = $readMessageQuery->paginate()->toArray();
 
     $data = $messages['data'];
@@ -138,7 +138,7 @@ class MessagesController extends Controller{
     $mergedMessageQuery = Message::mergedQuery($user_id, $namespace);
     $mergedMessageQuery = $mergedMessageQuery->orderBy('id', 'desc');
 
-    $per_page = 10;
+    $per_page = $request->input('per_page', 20);
     $page = $request->input('page');
     $skip = ($page - 1) * $per_page;
 
@@ -151,7 +151,7 @@ class MessagesController extends Controller{
     $data = $messages;
     $meta = [
         'current_page' => $page,
-        'last_page' => $count % $per_page,
+        'last_page' => ($count > $per_page) ? ceil($count / $per_page) : 1,
         'total' => $count,
         'per_page' => $per_page
     ];
