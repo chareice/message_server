@@ -155,8 +155,7 @@ class Message extends Model{
 
   public static function getUnReadQueryBuilder($user_id, $namespace=Message::DEFAULT_NAMESPACE){
     $queryBuilder = self::globalUnReadMessageQuery($user_id, $namespace)
-        ->union(self::userUnReadMessagesQuery($user_id, $namespace))
-        ->union(self::groupUnReadMessagesQuery($user_id, $namespace));
+        ->union(self::userUnReadMessagesQuery($user_id, $namespace));
     return $queryBuilder;
   }
 
