@@ -15,7 +15,7 @@ class Message extends Model{
   private $afterCreatedQueue = [];
 
   protected $fillable = ['expiration_time', 'effective_time', 'content', 'title'];
-  
+
   public static function boot(){
     parent::boot();
 
@@ -103,7 +103,6 @@ class Message extends Model{
         break;
     }
 
-    Log::info($message->toJson());
     return $message;
   }
 
