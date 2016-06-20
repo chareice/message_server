@@ -14,6 +14,8 @@ class Message extends Model{
 
   private $afterCreatedQueue = [];
 
+  protected $fillable = ['expiration_time', 'effective_time', 'content', 'title'];
+  
   public static function boot(){
     parent::boot();
 
@@ -61,6 +63,10 @@ class Message extends Model{
     }
   }
 
+  public function userTargets(){
+    return $this->hasMany('App\MessageTarget');
+  }
+
   public static function buildWithOptions($options){
     $message = new self;
 
@@ -93,10 +99,11 @@ class Message extends Model{
         break;
 
       default:
-        # code...
+        throw new \Exception('invalid target');
         break;
     }
 
+    Log::info($message->toJson());
     return $message;
   }
 

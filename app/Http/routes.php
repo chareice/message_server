@@ -21,11 +21,13 @@ $app->group(['prefix' => 'groups'], function () use ($app) {
 });
 
 $app->group(['prefix' => 'messages'], function () use ($app) {
+  $app->get('/read_status', 'App\Http\Controllers\MessagesController@getReadLog');
   $app->get('/', ['uses' => 'App\Http\Controllers\MessagesController@index']);
   $app->post('/', ['uses' => 'App\Http\Controllers\MessagesController@create']);
   $app->post('/read', ['uses' => 'App\Http\Controllers\MessagesController@read']);
   $app->delete('/{message_id}', ['uses' => 'App\Http\Controllers\MessagesController@destroy']);
   $app->get('/{message_id}', ['uses' => 'App\Http\Controllers\MessagesController@show']);
+  $app->patch('/{message_id}', 'App\Http\Controllers\MessagesController@update');
 });
 
 $app->group(['prefix' => 'users'], function() use ($app){

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\TargetStatus;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -22,28 +23,60 @@ class MessagesController extends Controller{
     }
 
     #设置当前页
-    $current_page = 1;
-    if($request->input('page')){
-      $current_page = $request->input('page');
-    }
+
+    $current_page = $request->input('page', 1);
 
     Paginator::currentPageResolver(function() use ($current_page) {
       return $current_page;
     });
 
-    $messages_query = Message::orderBy('id', 'desc');
+    $messages_query = Message::with('userTargets')->orderBy('id', 'desc');
     $messages_query->where('namespace', $request->input('namespace', self::DEFAULT_NAMESPACE))->orderBy('id', 'desc');
 
     $messages = $messages_query->paginate($per_page);
 
     $messages_array = $messages->toArray();
     $data = $messages_array['data'];
+
+    $data = collect($data)->map(function($item){
+      $targets = collect($item['user_targets'])->map(function($target){
+        return $target['target_id'];
+      });
+
+      $item['user_targets'] = $targets;
+      return $item;
+    });
+
     $meta = [
       'current_page' => $messages_array['current_page'],
       'last_page' => $messages_array['last_page'],
       'total' => $messages_array['total'],
       'per_page' => $messages_array['per_page']
     ];
+    return $this->responseJson($data, $meta);
+  }
+
+  //获取已读记录
+  public function getReadLog(Request $request){
+    $namespace = $request->input('namespace', self::DEFAULT_NAMESPACE);
+    $per_page = $request->input('per_page', 20);
+    $query = TargetStatus::join('messages', 'target_status.message_id', '=', 'messages.id')
+            ->where('messages.namespace', '=', $namespace)
+            ->orderBy('target_status.created_at', 'desc')
+            ->select('messages.id as message_id',
+                'messages.title as title',
+                'target_status.created_at as read_at',
+                'target_status.target_id'
+                );
+    $target_status = $query->paginate($per_page)->toArray();
+    $data = $target_status['data'];
+    $meta = [
+        'current_page' => $target_status['current_page'],
+        'last_page' => $target_status['last_page'],
+        'total' => $target_status['total'],
+        'per_page' => $target_status['per_page']
+    ];
+
     return $this->responseJson($data, $meta);
   }
 
@@ -160,7 +193,11 @@ class MessagesController extends Controller{
 
   //获取消息内容
   public function show($message_id){
-    $message = Message::find($message_id);
+    $message = Message::with('userTargets')->find($message_id);
+    $message = $message->toArray();
+    $message['user_targets'] = collect($message['user_targets'])->map(function($target){
+        return $target['target_id'];
+    });
     return $this->responseJson($message);
   }
 
@@ -168,6 +205,13 @@ class MessagesController extends Controller{
   public function destroy($message_id){
     $message = Message::find($message_id);
     $message->delete();
+    return $this->responseJson();
+  }
+
+  //修改消息
+  public function update($message_id, Request $request){
+    $message = Message::find($message_id);
+    $message->update($request->all());
     return $this->responseJson();
   }
 }
