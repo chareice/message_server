@@ -13,7 +13,7 @@ class AddCreatedAtTragetStatus extends Migration
     public function up()
     {
         Schema::table('target_status', function ($table) {
-            $table->timestamp('created_at');
+            $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
         });
     }
 
