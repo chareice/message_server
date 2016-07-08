@@ -26,7 +26,7 @@ class CreateMessagesTable extends Migration
           $table->string('sender_id')->index();
 
           //目标类型 可能是用户／群组／全体
-          $table->enum('target_type', ['user', 'group', 'global']);
+          $table->enum('target_type', ['user', 'group', 'global'])->index();
           //created_at and updated_at
           $table->timestamps();
         });

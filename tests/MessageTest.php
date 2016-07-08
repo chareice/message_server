@@ -179,50 +179,50 @@ class MessageTest extends TestCase
   }
 
   //测试获取组群发消息
-  public function testGetGroupUnReadMessage(){
-    $message_content = 'this is a message';
-    $group = new Group;
-    $group->name = $this->faker->name;
-    $group->save();
+  // public function testGetGroupUnReadMessage(){
+  //   $message_content = 'this is a message';
+  //   $group = new Group;
+  //   $group->name = $this->faker->name;
+  //   $group->save();
 
-    $group2 = new Group;
-    $group2->name = $this->faker->name;
-    $group2->save();
+  //   $group2 = new Group;
+  //   $group2->name = $this->faker->name;
+  //   $group2->save();
 
-    $group->addUsers([1, 2, 3]);
-    $group2->addUsers([2, 3]);
+  //   $group->addUsers([1, 2, 3]);
+  //   $group2->addUsers([2, 3]);
 
-    //按组群发
-    $options = [
-      'content' => $message_content,
-      'targets' => [1, 2],
-      'target_type' => 'group',
-      'sender_id' => 1,
-      'title' => 'this is title'
-    ];
+  //   //按组群发
+  //   $options = [
+  //     'content' => $message_content,
+  //     'targets' => [1, 2],
+  //     'target_type' => 'group',
+  //     'sender_id' => 1,
+  //     'title' => 'this is title'
+  //   ];
 
-    $message = Message::buildWithOptions($options);
-    $message->save();
+  //   $message = Message::buildWithOptions($options);
+  //   $message->save();
 
-    $options = [
-      'content' => $message_content,
-      'targets' => [2],
-      'target_type' => 'group',
-      'sender_id' => 1,
-      'title' => 'this is title'
-    ];
+  //   $options = [
+  //     'content' => $message_content,
+  //     'targets' => [2],
+  //     'target_type' => 'group',
+  //     'sender_id' => 1,
+  //     'title' => 'this is title'
+  //   ];
 
-    $message = Message::buildWithOptions($options);
-    $message->save();
+  //   $message = Message::buildWithOptions($options);
+  //   $message->save();
 
-    //用户1能看到1消息
-    $unreadMessages = Message::getUnRead(1);
-    $this->assertEquals(1, count($unreadMessages));
+  //   //用户1能看到1消息
+  //   $unreadMessages = Message::getUnRead(1);
+  //   $this->assertEquals(1, count($unreadMessages));
 
-    //用户2能看到2消息
-    $unreadMessages = Message::getUnRead(2);
-    $this->assertEquals(2, count($unreadMessages));
-  }
+  //   //用户2能看到2消息
+  //   $unreadMessages = Message::getUnRead(2);
+  //   $this->assertEquals(2, count($unreadMessages));
+  // }
 
   //测试获取混合消息记录
   public function testGetUnReadMessage(){
@@ -293,24 +293,24 @@ class MessageTest extends TestCase
     $this->assertEquals(0, count(Message::getUnRead(1)));
 
     //群组发消息
-    $group = new Group;
-    $group->name = $this->faker->name;
-    $group->save();
+    // $group = new Group;
+    // $group->name = $this->faker->name;
+    // $group->save();
 
-    $group->addUsers([1]);
-    $options = [
-      'content' => $message_content,
-      'targets' => [1],
-      'target_type' => 'group',
-      'sender_id' => 1,
-      'title' => 'this is title'
-    ];
+    // $group->addUsers([1]);
+    // $options = [
+    //   'content' => $message_content,
+    //   'targets' => [1],
+    //   'target_type' => 'group',
+    //   'sender_id' => 1,
+    //   'title' => 'this is title'
+    // ];
 
-    $groupMessage = Message::buildWithOptions($options);
-    $groupMessage->save();
-    $this->assertEquals(1, count(Message::getUnRead(1)));
-    $groupMessage->readBy(1);
-    $this->assertEquals(0, count(Message::getUnRead(1)));
+    // $groupMessage = Message::buildWithOptions($options);
+    // $groupMessage->save();
+    // $this->assertEquals(1, count(Message::getUnRead(1)));
+    // $groupMessage->readBy(1);
+    // $this->assertEquals(0, count(Message::getUnRead(1)));
   }
 
   //测试获取未读消息数量
