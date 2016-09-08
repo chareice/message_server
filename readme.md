@@ -3,10 +3,29 @@
 [toc]
 
 ##一、运行方法
+
+### 开发环境
+
 1. 执行`composer install`
 2. 复制`.env.example`到`.env`并修改其中的数据库配置。
 3. 运行`php artisan migrate`执行数据库迁移。
 4. 运行`php -S 0.0.0.0:8080 -t public` 开启服务（测试用）。
+
+### Docker部署
+
+启动mysql数据库：
+```
+docker run --name message_server_mysql \
+		-e MYSQL_ROOT_PASSWORD=pass \
+		-d mysql --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+```
+
+启动message_server：
+
+```
+./build_image.sh
+./start-container.sh
+```
 
 ##二、单元测试
 
