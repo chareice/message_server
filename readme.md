@@ -19,6 +19,11 @@ docker run --name message_server_mysql \
 		-e MYSQL_ROOT_PASSWORD=pass \
 		-d mysql --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
 ```
+创建message_server数据库：
+
+```
+docker exec message_server_mysql bash -c 'echo "CREATE DATABASE message_server" | mysql -u root -ppass'
+```
 
 启动message_server：
 
