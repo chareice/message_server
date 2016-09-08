@@ -189,7 +189,7 @@ class MessagesController extends Controller{
     $mergedMessageQuery = $mergedMessageQuery->orderBy('id', 'desc');
 
     $per_page = $request->input('per_page', 20);
-    $page = $request->input('page');
+    $page = $request->input('page', 1);
     $skip = ($page - 1) * $per_page;
 
     $countQuery = DB::table(DB::raw("({$mergedMessageQuery->toSql()}) as sub"))
