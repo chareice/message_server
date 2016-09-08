@@ -76,6 +76,31 @@ class MessagesControllerTest extends TestCase{
     $this->assertEquals(0, count(Message::getUnRead(1)));
   }
 
+  //用户全部标记为已读测试
+  public function testReadAllMessage(){
+    $options = [
+      'content' =>'Some Content',
+      'target_type' => 'global',
+      'sender_id' => 1,
+      'title' => 'this is title'
+    ];
+
+    $this->post('/messages', $options);
+    $this->assertResponseOk();
+    $options = [
+      'content' =>'Some Content',
+      'target_type' => 'global',
+      'sender_id' => 1,
+      'title' => 'this is title'
+    ];
+
+    $this->post('/messages', $options);
+    $this->assertResponseOk();
+    $this->assertEquals(2, count(Message::getUnRead(1)));
+    $response = $this->call('POST', '/messages/read_all', ['user_id' => 1]);
+    $this->assertEquals(0, count(Message::getUnRead(1)));
+  }
+
   //获取用户未读消息数量
   public function testGetUnReadMessageCount(){
     //创建一条全局消息

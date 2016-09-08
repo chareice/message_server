@@ -149,6 +149,23 @@ class MessagesController extends Controller{
     return $this->responseJson();
   }
 
+  public function readAll(Request $request){
+    $user_id = $request->input('user_id');
+    $namespace = $request->input('namespace', 'main');
+    $unreadMessageQuery = Message::getUnReadQueryBuilder($user_id, $namespace)->orderBy('id', 'desc');
+
+    $messages = $unreadMessageQuery->get();
+
+    DB::transaction(function () use ($messages, $user_id){
+      $messages->each(function($message) use ($user_id){
+        $message->readBy($user_id);
+      });
+    });
+
+
+    return $this->responseJson();
+  }
+
   //获取已读消息
   public function getReadMessage($user_id, Request $request){
     $namespace = $request->input('namespace', self::DEFAULT_NAMESPACE);
