@@ -1,0 +1,27 @@
+version: '3'
+services:
+  message_server:
+    build: .
+    depends_on:
+      - db
+    environment:
+      - LANG=C.UTF-8
+      - APP_DEBUG=false
+      - APP_ENV=production
+      - APP_KEY=base64:C3wpldfEhxWXC2W9kysV443SicHjZOJqECFGOtpZuHM=
+      - DB_CONNECTION=mysql
+      - DB_HOST=db
+      - DB_DATABASE=message_server
+      - DB_USERNAME=root
+      - DB_PASSWORD=pass
+      - APP_TIMEZONE=PRC
+      - DB_TIMEZONE=+08:00
+  db:
+    image: mysql:5.7
+    volumes:
+      - db-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: pass
+      MYSQL_DATABASE: message_server
+volumes:
+  db-data:
