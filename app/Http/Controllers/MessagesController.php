@@ -82,17 +82,17 @@ class MessagesController extends Controller{
 
   //创建消息
   public function create(Request $request){
-    $content = $request->input('content');
-    $title = $request->input('title');
-    $target_type = $request->input('target_type');
-    $targets = $request->input('targets');
-    $sender_id = $request->input('sender_id');
-    $expiration_time = $request->input('expiration_time');
-    $effective_time = $request->input('effective_time');
-    $namespace = $request->input('namespace');
+    $content = $request->json('content');
+    $title = $request->json('title');
+    $target_type = $request->json('target_type');
+    $targets = $request->json('targets');
+    $sender_id = $request->json('sender_id');
+    $expiration_time = $request->json('expiration_time');
+    $effective_time = $request->json('effective_time');
+    $namespace = $request->json('namespace');
 
     $options = [
-      'content' => $content,
+      'content' => $content ? json_encode($content) : $content,
       'target_type' => $target_type,
       'targets' => $targets,
       'sender_id' => $sender_id,

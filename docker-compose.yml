@@ -1,7 +1,9 @@
 version: '3'
 services:
   message_server:
-    build: .
+    image: chareice/message-server
+    ports:
+      - 8001:80
     depends_on:
       - db
     environment:
