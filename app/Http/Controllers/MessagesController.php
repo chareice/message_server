@@ -30,8 +30,15 @@ class MessagesController extends Controller{
             return $current_page;
         });
 
+        $json_filter_fields = $request->input('json_filter_fields') ;
+
         $messages_query = Message::with('userTargets')->orderBy('id', 'desc');
+        if($json_filter_fields){
+            $messages_query = Message::jsonFilterQuery($messages_query ,$json_filter_fields) ;
+        }
         $messages_query->where('namespace', $request->input('namespace', self::DEFAULT_NAMESPACE))->orderBy('id', 'desc');
+
+
 
         $messages = $messages_query->paginate($per_page);
 
@@ -68,6 +75,10 @@ class MessagesController extends Controller{
                 'target_status.created_at as read_at',
                 'target_status.target_id'
             );
+        $json_filter_fields = $request->input('json_filter_fields') ;
+        if($json_filter_fields){
+            $query = Message::jsonFilterQuery($query ,$json_filter_fields) ;
+        }
         $target_status = $query->paginate($per_page)->toArray();
         $data = $target_status['data'];
         $meta = [
@@ -110,8 +121,12 @@ class MessagesController extends Controller{
     //用户获取未读消息
     public function getUnReadMessage($user_id, Request $request){
         $namespace = $request->input('namespace', self::DEFAULT_NAMESPACE);
-        $unreadMessageQuery = Message::getUnReadQueryBuilder($user_id, $namespace)->orderBy('id', 'desc');
-
+        $json_filter_fields = $request->input('json_filter_fields') ;
+        if($json_filter_fields){
+            $unreadMessageQuery = Message::getUnReadQueryBuilderJsonFilter($user_id, $namespace,$json_filter_fields)->orderBy('id', 'desc');
+        }else{
+            $unreadMessageQuery = Message::getUnReadQueryBuilder($user_id, $namespace)->orderBy('id', 'desc');
+        }
         $messages = $unreadMessageQuery->get();
 
         $page = $request->input('page', 1);
@@ -152,8 +167,13 @@ class MessagesController extends Controller{
     public function readAll(Request $request){
         $user_id = $request->input('user_id');
         $namespace = $request->input('namespace', 'main');
-        $unreadMessageQuery = Message::getUnReadQueryBuilder($user_id, $namespace)->orderBy('id', 'desc');
 
+        $json_filter_fields = $request->input('json_filter_fields') ;
+        if($json_filter_fields){
+            $unreadMessageQuery = Message::getUnReadQueryBuilderJsonFilter($user_id, $namespace,$json_filter_fields)->orderBy('id', 'desc');
+        }else{
+            $unreadMessageQuery = Message::getUnReadQueryBuilder($user_id, $namespace)->orderBy('id', 'desc');
+        }
         $messages = $unreadMessageQuery->get();
 
         DB::transaction(function () use ($messages, $user_id){
@@ -170,6 +190,11 @@ class MessagesController extends Controller{
     public function getReadMessage($user_id, Request $request){
         $namespace = $request->input('namespace', self::DEFAULT_NAMESPACE);
         $readMessageQuery = Message::readMessagesQueryWithReadAt($user_id, $namespace)->orderBy('id', 'desc');
+
+        $json_filter_fields = $request->input('json_filter_fields') ;
+        if($json_filter_fields){
+            $readMessageQuery = Message::jsonFilterQuery($readMessageQuery ,$json_filter_fields) ;
+        }
         $messages = $readMessageQuery->paginate()->toArray();
 
         $data = $messages['data'];
@@ -185,7 +210,13 @@ class MessagesController extends Controller{
     //获取合并消息
     public function getMergedMessage($user_id, Request $request){
         $namespace = $request->input('namespace', self::DEFAULT_NAMESPACE);
-        $mergedMessageQuery = Message::mergedQuery($user_id, $namespace);
+        $json_filter_fields = $request->input('json_filter_fields') ;
+
+        if($json_filter_fields){
+            $mergedMessageQuery = Message::mergedQueryJsonFilter($user_id, $namespace,$json_filter_fields);
+        }else{
+            $mergedMessageQuery = Message::mergedQuery($user_id, $namespace);
+        }
         $mergedMessageQuery = $mergedMessageQuery->orderBy('id', 'desc');
 
         $per_page = $request->input('per_page', 20);

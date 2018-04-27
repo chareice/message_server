@@ -164,6 +164,13 @@ class Message extends Model{
         return $queryBuilder;
     }
 
+
+    public static function getUnReadQueryBuilderJsonFilter($user_id, $namespace=Message::DEFAULT_NAMESPACE,$json_filter_fields){
+        $queryBuilder = self::globalUnReadMessageQueryJsonFilter($user_id, $namespace,$json_filter_fields)
+            ->union(self::userUnReadMessagesQueryJsonFilter($user_id, $namespace,$json_filter_fields));
+        return $queryBuilder;
+    }
+
     public static function readMessagesQueryWithReadAt($user_id, $namespace){
         $query = Message::select('messages.id', 'messages.title', 'messages.content',
             'messages.created_at', 'messages.sender_id', DB::raw("'read' as read_status"), 'target_status.created_at as read_at')
@@ -182,6 +189,18 @@ class Message extends Model{
             ->where('target_status.target_id', '=', $user_id)
             ->where('messages.namespace', '=', $namespace)
             ->where('target_status.status', '=', 'read');
+        return $query;
+    }
+
+    //全局已读消息
+    public static function readMessagesQueryJsonFilter($user_id, $namespace,$json_filter_fields){
+        $query = Message::select('messages.id', 'messages.title', 'messages.content',
+            'messages.created_at', 'messages.sender_id', DB::raw("'read' as read_status"))
+            ->join('target_status', 'messages.id', '=', 'target_status.message_id')
+            ->where('target_status.target_id', '=', $user_id)
+            ->where('messages.namespace', '=', $namespace)
+            ->where('target_status.status', '=', 'read');
+        $query = self::jsonFilterQuery($query,$json_filter_fields) ;
         return $query;
     }
 
@@ -205,6 +224,27 @@ class Message extends Model{
         return $queryBuilder;
     }
 
+    //全局未读消息
+    public static function globalUnReadMessageQueryJsonFilter($user_id, $namespace,$json_filter_fields){
+        $now = Carbon::now()->toDateTimeString();
+        $queryBuilder = Message::select('messages.id', 'messages.title', 'messages.content', 'messages.created_at', 'messages.sender_id', DB::raw("'unread' as read_status"))
+            ->leftJoin('target_status', function($join) use ($user_id){
+                $join->on('messages.id', '=', 'target_status.message_id')
+                    ->where('target_status.target_id', '=', $user_id);
+            })->where('messages.target_type', '=', self::global_TARGET_TYPE)
+ ;
+        $queryBuilder = self::jsonFilterQuery($queryBuilder,$json_filter_fields) ;
+        return $queryBuilder->where('messages.namespace', '=', $namespace)
+            ->where(function($query) use ($now){
+            $query->where('messages.effective_time', '=', null)
+                ->orWhere('messages.effective_time', '<', $now);
+        })->where(function($query) use ($now){
+            $query->where('messages.expiration_time', '=', null)
+                ->orWhere('messages.expiration_time', '>', $now);
+        })->whereNull('target_status.message_id');
+
+    }
+
     //用户未读消息
     public static function userUnReadMessagesQuery($user_id, $namespace){
         $now = Carbon::now()->toDateTimeString();
@@ -222,6 +262,25 @@ class Message extends Model{
             })
             ->whereNull('target_status.message_id');
         return $queryBuilder;
+    }
+
+    //用户未读消息
+    public static function userUnReadMessagesQueryJsonFilter($user_id, $namespace,$json_filter_fields){
+
+        $now = Carbon::now()->toDateTimeString();
+        $queryBuilder =  Message::select('messages.id', 'messages.title', 'messages.content', 'messages.created_at', 'messages.sender_id', DB::raw("'unread' as read_status"))
+            ->join('message_targets', 'message_targets.message_id', '=', 'messages.id')
+            ->leftJoin('target_status', 'target_status.message_id', '=', 'messages.id')
+            ->where('message_targets.target_id', '=', $user_id);
+        $queryBuilder = self::jsonFilterQuery($queryBuilder,$json_filter_fields) ;
+
+        return $queryBuilder->where('messages.namespace', '=', $namespace)->where(function($query) use ($now){
+            $query->where('messages.effective_time', '=', null)
+                ->orWhere('messages.effective_time', '<', $now);
+        })->where(function($query) use ($now){
+            $query->where('messages.expiration_time', '=', null)
+                ->orWhere('messages.expiration_time', '>', $now);
+        })->whereNull('target_status.message_id');
     }
 
     //未读群组消息
@@ -251,5 +310,22 @@ class Message extends Model{
         $query = self::getUnReadQueryBuilder($user_id, $namespace)
             ->union(self::readMessagesQuery($user_id, $namespace));
         return $query;
+    }
+
+    public static function mergedQueryJsonFilter($user_id, $namespace=Message::DEFAULT_NAMESPACE,$json_filter_fields){
+        $query = self::getUnReadQueryBuilderJsonFilter($user_id, $namespace,$json_filter_fields)
+            ->union(self::readMessagesQueryJsonFilter($user_id, $namespace,$json_filter_fields));
+        return $query;
+    }
+
+    public static function jsonFilterQuery($query,$json_filter_fields){
+        if($json_filter_fields){
+            // $json_filter_fields 为json字符串 ，key为content所存json需要的字段 ， value为过滤条件 如 {"json_extract(messages.contetnt,'$.params.user_id')":"=5"}
+            $filter_fields = json_decode($json_filter_fields) ;
+            foreach ($filter_fields as $fieldKey=>$fieldValue) {
+                $query->whereRaw($fieldKey.$fieldValue);
+            }
+        }
+        return $query ;
     }
 }
